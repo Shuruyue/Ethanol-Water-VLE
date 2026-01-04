@@ -1,0 +1,42 @@
+# VLE Consulting Project Configuration
+# Ethanol-Water Binary System at 1 atm
+
+system:
+  name: "Ethanol-Water"
+  pressure_kPa: 101.3
+  temperature_unit: "Celsius"
+  
+components:
+  - name: "Ethanol"
+    cas: "64-17-5"
+    antoine:
+      A: 8.20417
+      B: 1642.89
+      C: 230.3
+      unit: "mmHg"
+      
+  - name: "Water"
+    cas: "7732-18-5"
+    antoine:
+      A: 8.07131
+      B: 1730.63
+      C: 233.426
+      unit: "mmHg"
+
+models:
+  nrtl:
+    alpha12: 0.3
+    alpha21: 0.3
+    a12: 0.88
+    b12: 0.0
+    a21: 1.45
+    b21: 0.0
+    
+  vanlaar:
+    A12: 1.65
+    A21: 0.95
+
+output:
+  figures_dir: "figures"
+  dpi: 300
+  format: "png"
