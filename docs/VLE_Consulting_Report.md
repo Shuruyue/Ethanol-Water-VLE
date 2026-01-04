@@ -276,4 +276,33 @@ All recommendations are grounded in the following thermodynamic principles:
 
 ---
 
+## References
+
+### Primary Source (Project PDF)
+1. **Assignment Document**: `thermo.pdf` — VLE Consulting Report requirements, grading rubric, and reference Python code structure.
+
+### Textbook Reference
+2. **Sandler, S.I.** (2017). *Chemical, Biochemical, and Engineering Thermodynamics* (5th ed.). Wiley. Chapters 6-10.
+
+### NRTL Parameters (External Literature)
+3. **Gmehling, J., Onken, U., Arlt, W.** (1990). *Vapor-Liquid Equilibrium Data Collection*. DECHEMA Chemistry Data Series, Vol. I, Part 1. Frankfurt: DECHEMA.
+   - Source of temperature-dependent NRTL parameters: a₁₂=-0.801, b₁₂=246.18 K, a₂₁=3.458, b₂₁=-586.08 K
+
+4. **Dortmund Data Bank (DDB)**. DDBST GmbH. https://www.ddbst.com/
+   - Binary interaction parameters for Ethanol-Water system
+
+### Antoine Equation Parameters
+5. **NIST Chemistry WebBook**. National Institute of Standards and Technology. https://webbook.nist.gov/
+   - Ethanol: A=8.20417, B=1642.89, C=230.3 (mmHg, °C)
+   - Water: A=8.07131, B=1730.63, C=233.426 (mmHg, °C)
+
+### NRTL Model Theory
+6. **Renon, H., Prausnitz, J.M.** (1968). Local compositions in thermodynamic excess functions for liquid mixtures. *AIChE Journal*, 14(1), 135-144. https://doi.org/10.1002/aic.690140124
+
+### Excess Enthalpy Data (Validation)
+7. **Nagata, I., Kazuma, K.** (1977). Excess thermodynamic functions of ethanol-water and 1-propanol-water mixtures. *Journal of Chemical & Engineering Data*, 22(4), 450-453. https://doi.org/10.1021/je60075a015
+   - Confirms exothermic mixing with peak H^E ≈ -800 J/mol at x₁ ≈ 0.3
+
+---
+
 *This report was prepared using rigorous thermodynamic analysis based on the NRTL activity coefficient model. All calculations were performed using Python with scipy for numerical methods and matplotlib for visualization.*
