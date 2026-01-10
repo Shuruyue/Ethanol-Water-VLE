@@ -348,24 +348,23 @@ def main():
     vanlaar_p = VanLaarParams(A12=1.65, A21=0.95)
     print(f"\nVan Laar Parameters: A12={vanlaar_p.A12}, A21={vanlaar_p.A21}")
     
-    # NRTL parameters - Literature verified with temperature dependence
-    # Source: DECHEMA Chemistry Data Series / Gmehling et al. (1990)
-    #         Dortmund Data Bank (DDB) - recommended parameters
-    # Reference: Gmehling, J., Onken, U., Arlt, W., "Vapor-Liquid Equilibrium 
-    #            Data Collection", DECHEMA Chemistry Data Series, Vol. I, Part 1
+    # NRTL parameters - ChemSep Database (Validated)
+    # Source: thermo/Interaction Parameters/ChemSep/nrtl.json
+    # System: Ethanol (64-17-5) - Water (7732-18-5)
     # 
-    # tau_ij = a_ij + b_ij / T  (T in Kelvin)
+    # ChemSep NRTL format: tau_ij = b_ij / T  (T in Kelvin, no constant term)
+    # This format ensures temperature-dependent activity coefficients,
+    # enabling non-zero excess enthalpy (H^E) calculations.
     # 
-    # These parameters produce EXOTHERMIC mixing (negative H^E) for Ethanol-Water,
-    # consistent with experimental measurements at 298.15 K showing peak H^E 
-    # of approximately -800 J/mol at x_ethanol ≈ 0.3
+    # Validated by: tests/test_nrtl.py::test_NRTL_chemsep
+    # At T=343.15K, xs=[0.252, 0.748]: gammas ≈ [1.985, 1.146]
     nrtl_p = NRTLParams(
-        alpha12=0.3,      # Non-randomness factor (standard for polar systems)
-        alpha21=0.3,
-        a12=-0.801,       # Dimensionless energy parameter
-        b12=246.18,       # Temperature-dependent term (K) - from DECHEMA
-        a21=3.458,        # Dimensionless energy parameter  
-        b21=-586.08       # Temperature-dependent term (K) - from DECHEMA
+        alpha12=0.2937,   # ChemSep alphaij (symmetric for this system)
+        alpha21=0.2937,
+        a12=0.0,          # ChemSep format: tau = b/T (no constant term)
+        b12=-29.167,      # Ethanol→Water interaction parameter (K)
+        a21=0.0,          # ChemSep format: tau = b/T (no constant term)
+        b21=624.868       # Water→Ethanol interaction parameter (K)
     )
     print(f"\nNRTL Parameters (DECHEMA/Gmehling):")
     print(f"  alpha12={nrtl_p.alpha12}, alpha21={nrtl_p.alpha21}")
