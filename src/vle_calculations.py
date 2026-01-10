@@ -72,6 +72,14 @@ def solve_bubble_point(x1, model_type='nrtl'):
         Psat1 = get_vapor_pressure(CAS_ETHANOL, T)
         Psat2 = get_vapor_pressure(CAS_WATER, T)
         
+        # Guard against vapor pressure calculation failures
+        # Return a penalty value to guide brentq away from invalid temperatures
+        if Psat1 is None or Psat2 is None:
+            # Return signed residual to help brentq bracketing:
+            # High T (>350K) → positive residual → search lower
+            # Low T (<350K) → negative residual → search higher
+            return 1e9 if T > 350 else -1e9
+        
         if model_type == 'ideal':
             gamma1, gamma2 = 1.0, 1.0
         else:
