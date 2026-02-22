@@ -1,0 +1,62 @@
+{
+  "systems": {
+    "ethanol_water_1atm": {
+      "name": "Ethanol-Water",
+      "pressure_kpa": 101.325,
+      "components": {
+        "component_1": {
+          "name": "Ethanol",
+          "cas": "64-17-5",
+          "antoine": {
+            "A": 8.20417,
+            "B": 1642.89,
+            "C": 230.3,
+            "unit": "mmHg"
+          },
+          "source": {
+            "name": "NIST Chemistry WebBook",
+            "citation": "NIST SRD 69, Antoine coefficients for ethanol in the normal-boiling range.",
+            "url": "https://webbook.nist.gov/"
+          }
+        },
+        "component_2": {
+          "name": "Water",
+          "cas": "7732-18-5",
+          "antoine": {
+            "A": 8.07131,
+            "B": 1730.63,
+            "C": 233.426,
+            "unit": "mmHg"
+          },
+          "source": {
+            "name": "NIST Chemistry WebBook",
+            "citation": "NIST SRD 69, Antoine coefficients for water in the normal-boiling range.",
+            "url": "https://webbook.nist.gov/"
+          }
+        }
+      },
+      "nrtl": {
+        "alpha12": 0.3,
+        "alpha21": 0.3,
+        "a12": -0.801,
+        "b12": 246.18,
+        "a21": 3.458,
+        "b21": -586.08,
+        "source": {
+          "name": "DECHEMA Data Collection",
+          "citation": "Gmehling, Onken, and Arlt, Vapor-Liquid Equilibrium Data Collection, DECHEMA Chemistry Data Series Vol. I.",
+          "url": ""
+        }
+      },
+      "van_laar": {
+        "A12": 1.65,
+        "A21": 0.95,
+        "source": {
+          "name": "Course parameter set",
+          "citation": "Sandler course assignment set used for model comparison only.",
+          "url": ""
+        }
+      }
+    }
+  }
+}

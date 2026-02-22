@@ -1,0 +1,44 @@
+{
+  "system": {
+    "id": "ethanol_water_1atm",
+    "name": "Ethanol-Water",
+    "pressure_kpa": 101.325
+  },
+  "parameter_sources": {
+    "component_1": {
+      "name": "NIST Chemistry WebBook",
+      "citation": "NIST SRD 69, Antoine coefficients for ethanol in the normal-boiling range.",
+      "url": "https://webbook.nist.gov/"
+    },
+    "component_2": {
+      "name": "NIST Chemistry WebBook",
+      "citation": "NIST SRD 69, Antoine coefficients for water in the normal-boiling range.",
+      "url": "https://webbook.nist.gov/"
+    },
+    "nrtl": {
+      "name": "DECHEMA Data Collection",
+      "citation": "Gmehling, Onken, and Arlt, Vapor-Liquid Equilibrium Data Collection, DECHEMA Chemistry Data Series Vol. I.",
+      "url": ""
+    }
+  },
+  "nrtl_parameters": {
+    "alpha12": 0.3,
+    "alpha21": 0.3,
+    "a12": -0.801,
+    "b12": 246.18,
+    "a21": 3.458,
+    "b21": -586.08
+  },
+  "metrics": {
+    "max_ge_j_mol": 914.5637578618532,
+    "max_he_j_mol": 67.44779278295277,
+    "min_he_j_mol": -224.84389358646862,
+    "reference_temperature_c": 78.2
+  },
+  "azeotrope": {
+    "x1": 0.89,
+    "y1": 0.8907989910595503,
+    "temperature_c": 78.16719412916525,
+    "abs_error": 0.0007989910595502803
+  }
+}
