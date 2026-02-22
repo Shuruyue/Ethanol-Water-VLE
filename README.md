@@ -1,89 +1,131 @@
-# VLE Consulting Project
-## Ethanol-Water Non-Ideal Mixing System Analysis
+# Ethanol-Water VLE Final Project
 
-A comprehensive thermodynamic analysis of the Ethanol-Water binary system using
-NRTL (Non-Random Two-Liquid) activity coefficient model for vapor-liquid equilibrium
-calculations.
+This folder contains the computation code for the chemical thermodynamics final project.
+The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 
-## Project Structure
+## Current Capabilities
 
-```
+- VLE prediction at fixed pressure: `T-x-y`, `y-x`
+- Excess properties from NRTL: `GE`, `HE`, `CPE`
+- Model comparison: ideal, Van Laar, NRTL
+- Interactive dashboard (Wolfram-style exploration)
+- Practical image-pack export for engineering decisions
+- Final build pipeline: plots + CSV tables + summary JSON
+
+## Directory
+
+```text
 vle_consulting/
-├── src/                    # Source code
-│   ├── __init__.py
-│   ├── vle_consulting_report.py  # Main calculation script
-│   └── vle_calculations.py       # Alternative calculation module
-├── docs/                   # Documentation
-│   └── VLE_Consulting_Report.md  # Complete consulting report
-├── figures/                # Generated plots
-│   ├── TxY_Ethanol_Water_1atm.png
-│   ├── Yx_Ethanol_Water_1atm.png
-│   ├── GE_vs_x_Ethanol_Water_1atm.png
-│   └── Hmix_vs_x_Ethanol_Water_1atm.png
-├── data/                   # Data files (if any)
-├── references/             # Reference materials
-│   ├── thermo.pdf          # Original assignment
-│   └── PDF詳細內容.txt      # Assignment details
-├── README.md               # This file
-├── requirements.txt        # Python dependencies
-└── config.yaml             # Configuration parameters
+├── data/
+│   └── parameter_db.json
+├── figures/
+├── plans/
+│   └── five_phase_plan.md
+├── references/
+│   └── thermo.pdf
+├── src/
+│   ├── main.py
+│   ├── interactive_app.py
+│   ├── output_pack.py
+│   ├── export_data.py
+│   ├── final_build.py
+│   ├── pipeline.py
+│   ├── parameter_store.py
+│   ├── models.py
+│   ├── solver.py
+│   ├── analysis.py
+│   └── plotting.py
+└── tests/
+    ├── test_parameter_store.py
+    ├── test_pipeline.py
+    └── test_output_pack.py
 ```
 
-## Quick Start
-
-### Installation
+## Install
 
 ```bash
 pip install -r requirements.txt
 ```
 
-### Generate VLE Plots
+## Run Baseline CLI
 
 ```bash
-cd src
-python vle_consulting_report.py
+python src/main.py
+python src/main.py --points 80
+python src/main.py --output-dir figures
+python src/main.py --no-plots
 ```
 
-Output files will be saved to the `figures/` directory.
+## Run Interactive Dashboard
 
-## System Parameters
+```bash
+streamlit run src/interactive_app.py
+```
 
-| Parameter | Value | Source |
-|-----------|-------|--------|
-| Pressure | 101.3 kPa (1 atm) | Specification |
-| Antoine (Ethanol) | A=8.20417, B=1642.89, C=230.3 | NIST |
-| Antoine (Water) | A=8.07131, B=1730.63, C=233.426 | NIST |
-| NRTL α₁₂ = α₂₁ | 0.30 | Literature |
-| NRTL τ₁₂ | a₁₂=0.88, b₁₂=0 K | Literature |
-| NRTL τ₂₁ | a₂₁=1.45, b₂₁=0 K | Literature |
+Interactive controls:
 
-## Models Implemented
+- Pressure (kPa)
+- Reference temperature (deg C)
+- Grid size
+- Full NRTL parameter set: `alpha12`, `alpha21`, `a12`, `b12`, `a21`, `b21`
 
-1. **Raoult's Law** - Ideal solution assumption
-2. **Van Laar Model** - Simple activity coefficient model
-3. **NRTL Model** - Recommended for polar mixtures
+## Generate Practical Output Pack
 
-## Key Findings
+```bash
+python src/output_pack.py --output-dir figures/practical_pack --t-ref 78.2 --points 80
+```
 
-- **Azeotrope**: Detected at x₁ ≈ 0.89 (95.6 wt% ethanol), T ≈ 78.2°C
-- **Positive Deviation**: G^E > 0 throughout composition range
-- **Separation Limit**: Simple distillation cannot exceed 95.6 wt% ethanol
+Default output set (recommended for real-world discussion):
 
-## Report Sections
+1. `txy_ethanol_water_1atm.png`: boiling/dew temperature design map
+2. `yx_ethanol_water_1atm.png`: separation trajectory map
+3. `ge_ethanol_water_1atm.png`: non-ideality intensity
+4. `he_ethanol_water_1atm.png`: thermal effect of mixing
+5. `isothermal_excess_bundle_tXXc.png`: `GE`, `HE`, `CPE` at chosen temperature
+6. `cpe_ethanol_water_tXXc.png`: excess heat-capacity signal
+7. `gamma_ethanol_water_tXXc.png`: activity coefficients vs composition
+8. `relative_volatility_ethanol_water_tXXc.png`: separation driving force map
+9. `azeotrope_pressure_sensitivity.png`: how azeotrope location shifts with pressure
 
-| Part | Weight | Description |
-|------|--------|-------------|
-| I | 10% | Executive Summary |
-| II | 20% | Problem Definition & Theory |
-| III | 30% | NRTL Analysis & VLE Comparison |
-| IV | 25% | Excess Properties & Energy |
-| V | 15% | Engineering Recommendations |
+## Build Final Deliverable Bundle
 
-## References
+```bash
+python src/final_build.py --output-root final_outputs --points 80 --t-ref 78.2
+```
 
-- Sandler, S.I., *Chemical, Biochemical, and Engineering Thermodynamics*, Ch. 6-10
-- Renon, H. & Prausnitz, J.M. (1968). Local compositions in thermodynamic excess functions for liquid mixtures. *AIChE Journal*, 14(1), 135-144.
+This generates:
 
-## Author
+- `final_outputs/plots/`:
+  baseline and practical-pack figures
+- `final_outputs/data/baseline/`:
+  model curves and bubble-line excess properties CSV
+- `final_outputs/data/isothermal/`:
+  fixed-temperature `GE/HE/CPE/gamma` CSV
+- `final_outputs/data/sensitivity/`:
+  azeotrope-pressure sensitivity CSV
+- `final_outputs/data/run_summary.json`:
+  key metrics + parameter-source metadata
 
-VLE Consulting Team - January 2026
+## Data Rules
+
+- Parameters are loaded only from `data/parameter_db.json`.
+- Every parameter block must include source metadata.
+- NRTL uses explicit constant and temperature terms:
+  - `tau_ij(T) = a_ij + b_ij / T`
+- Loader rejects datasets where both `a12` and `a21` are zero.
+
+## Real-World Gaps To Add Next
+
+To improve real-plant fidelity, add these datasets next:
+
+- pressure-dependent vapor-phase non-ideality (`phi` correction)
+- liquid density and heat-capacity data for full energy balance
+- validated pressure-swing azeotrope points from literature
+- uncertainty bounds for NRTL parameters (confidence intervals)
+- pilot or plant composition-temperature samples for model calibration
+
+## References Used In Database
+
+- NIST Chemistry WebBook for Antoine coefficients
+- DECHEMA data collection (Gmehling et al.) for NRTL parameters
+- Sandler textbook context for course setting
