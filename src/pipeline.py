@@ -10,7 +10,14 @@ import numpy as np
 from analysis import AzeotropePoint, compute_excess_curves, find_azeotrope
 from models import gamma_ideal, gamma_nrtl, gamma_van_laar
 from parameter_store import SystemParameters, load_system_parameters
-from plotting import plot_excess_enthalpy, plot_excess_gibbs, plot_txy, plot_yx
+from plotting import (
+    plot_excess_enthalpy,
+    plot_excess_gibbs,
+    plot_mccabe_thiele,
+    plot_txy,
+    plot_txy_with_experiment,
+    plot_yx,
+)
 from solver import compute_txy
 
 
@@ -86,6 +93,8 @@ def run_analysis(
                 plot_yx(plot_dir, x_i, y_i, x_v, y_v, x_n, y_n),
                 plot_excess_gibbs(plot_dir, x_n, GE),
                 plot_excess_enthalpy(plot_dir, x_n, HE),
+                plot_mccabe_thiele(plot_dir, x_n, y_n, xD=0.85, xB=0.05, xF=0.3, R_reflux=2.0),
+                plot_txy_with_experiment(plot_dir, x_n, y_n, T_n),
             ]
         )
 
