@@ -255,3 +255,170 @@ def plot_isothermal_excess_bundle(
     fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
     plt.close(fig)
     return out_path
+
+
+def plot_mccabe_thiele(
+    output_dir: Path | str,
+    x_nrtl: np.ndarray,
+    y_nrtl: np.ndarray,
+    xD: float = 0.80,
+    xB: float = 0.05,
+    xF: float = 0.40,
+    q: float = 1.0,
+    R_reflux: float = 2.0,
+    max_stages: int = 50,
+    dpi: int = 300,
+) -> Path:
+    """Save McCabe-Thiele step diagram for binary distillation.
+
+    Parameters
+    ----------
+    x_nrtl, y_nrtl : arrays
+        VLE equilibrium curve (x, y for ethanol).
+    xD : float
+        Distillate composition (mol fraction ethanol).
+    xB : float
+        Bottoms composition (mol fraction ethanol).
+    xF : float
+        Feed composition.
+    q : float
+        Feed quality (1 = saturated liquid, 0 = saturated vapor).
+    R_reflux : float
+        Reflux ratio (L/D).
+    max_stages : int
+        Maximum stepping stages for safety.
+    """
+    from scipy.interpolate import interp1d
+
+    out_dir = _ensure_output_dir(output_dir)
+    out_path = out_dir / "mccabe_thiele_ethanol_water.png"
+
+    # Interpolation for y = f(x)
+    y_eq = interp1d(x_nrtl, y_nrtl, kind="linear", fill_value="extrapolate")
+
+    # Rectifying operating line: y = (R/(R+1))*x + xD/(R+1)
+    slope_rect = R_reflux / (R_reflux + 1.0)
+    intercept_rect = xD / (R_reflux + 1.0)
+
+    # q-line intersection with rectifying line
+    if abs(q - 1.0) < 1e-6:
+        x_intersect = xF
+    else:
+        # q-line: y = (q/(q-1))*x - xF/(q-1)
+        slope_q = q / (q - 1.0)
+        intercept_q = -xF / (q - 1.0)
+        x_intersect = (intercept_rect - intercept_q) / (slope_q - slope_rect)
+    y_intersect = slope_rect * x_intersect + intercept_rect
+
+    # Stripping operating line: through (xB, xB) and (x_intersect, y_intersect)
+    slope_strip = (y_intersect - xB) / max(x_intersect - xB, 1e-10)
+    intercept_strip = xB - slope_strip * xB
+
+    # Stepping from xD down
+    stages_x = [xD]
+    stages_y = [xD]
+    x_curr = xD
+    n_stages = 0
+
+    for _ in range(max_stages):
+        # Horizontal line to equilibrium curve
+        y_curr = float(y_eq(x_curr))
+        if y_curr <= xB:
+            break
+        stages_x.extend([x_curr, x_curr])
+        stages_y.extend([x_curr, y_curr])
+
+        # Vertical line down to operating line
+        if x_curr >= x_intersect:
+            x_next = (y_curr - intercept_rect) / max(slope_rect, 1e-10)
+        else:
+            x_next = (y_curr - intercept_strip) / max(slope_strip, 1e-10)
+
+        stages_x.extend([x_curr, x_next])
+        stages_y.extend([y_curr, y_curr])
+        x_curr = x_next
+        n_stages += 1
+
+        if x_curr <= xB:
+            break
+
+    # Plot
+    fig, ax = plt.subplots(figsize=(9, 9))
+    ax.plot([0, 1], [0, 1], "k:", linewidth=0.8, label="y = x")
+    ax.plot(x_nrtl, y_nrtl, "r-", linewidth=2.0, label="NRTL equilibrium")
+
+    # Operating lines
+    x_rect = np.linspace(x_intersect, xD, 50)
+    ax.plot(x_rect, slope_rect * x_rect + intercept_rect, "b--", linewidth=1.5, label="rectifying")
+    x_strip = np.linspace(xB, x_intersect, 50)
+    ax.plot(x_strip, slope_strip * x_strip + intercept_strip, "g--", linewidth=1.5, label="stripping")
+
+    # Steps
+    ax.plot(stages_x, stages_y, color="orange", linewidth=1.0, alpha=0.8)
+
+    # Annotations
+    ax.axvline(xD, color="blue", linewidth=0.5, linestyle=":", alpha=0.5)
+    ax.axvline(xB, color="green", linewidth=0.5, linestyle=":", alpha=0.5)
+    ax.axvline(xF, color="gray", linewidth=0.5, linestyle=":", alpha=0.5)
+    ax.text(xD, 0.02, f"xD={xD:.2f}", fontsize=8, ha="center")
+    ax.text(xB, 0.02, f"xB={xB:.2f}", fontsize=8, ha="center")
+    ax.text(xF, 0.02, f"xF={xF:.2f}", fontsize=8, ha="center")
+
+    ax.set_xlabel("liquid mole fraction x1 (ethanol)")
+    ax.set_ylabel("vapor mole fraction y1 (ethanol)")
+    ax.set_title(f"McCabe-Thiele diagram ({n_stages} stages, R={R_reflux})")
+    ax.set_xlim(0.0, 1.0)
+    ax.set_ylim(0.0, 1.0)
+    ax.set_aspect("equal")
+    ax.grid(alpha=0.3)
+    ax.legend(loc="lower right", fontsize=8)
+    fig.tight_layout()
+    fig.savefig(out_path, dpi=dpi, bbox_inches="tight")
+    plt.close(fig)
+    return out_path
+
+
+def plot_txy_with_experiment(
+    output_dir: Path | str,
+    x_nrtl: np.ndarray,
+    y_nrtl: np.ndarray,
+    t_nrtl: np.ndarray,
+    exp_x: np.ndarray | None = None,
+    exp_y: np.ndarray | None = None,
+    exp_t: np.ndarray | None = None,
+    data_source: str = "experimental",
+    dpi: int = 300,
+) -> Path:
+    """Save T-x-y plot with experimental data overlay.
+
+    Parameters
+    ----------
+    exp_x, exp_y, exp_t : arrays, optional
+        Experimental liquid composition, vapor composition, and temperature.
+    data_source : str
+        Label for the experimental data source.
+    """
+    out_dir = _ensure_output_dir(output_dir)
+    out_path = out_dir / "txy_model_vs_experiment.png"
+
+    plt.figure(figsize=(10, 7))
+    plt.plot(x_nrtl, t_nrtl, "r-", linewidth=2.0, label="NRTL bubble")
+    plt.plot(y_nrtl, t_nrtl, "r--", linewidth=2.0, label="NRTL dew")
+
+    if exp_x is not None and exp_t is not None:
+        plt.scatter(exp_x, exp_t, marker="o", c="blue", s=40, zorder=5,
+                    label=f"{data_source} (liquid)", edgecolors="darkblue", linewidths=0.5)
+    if exp_y is not None and exp_t is not None:
+        plt.scatter(exp_y, exp_t, marker="^", c="cyan", s=40, zorder=5,
+                    label=f"{data_source} (vapor)", edgecolors="darkblue", linewidths=0.5)
+
+    plt.xlabel("ethanol mole fraction (x1 or y1)")
+    plt.ylabel("temperature (deg C)")
+    plt.title("ethanol-water T-x-y: model vs experiment")
+    plt.xlim(0.0, 1.0)
+    plt.grid(alpha=0.3)
+    plt.legend(loc="best")
+    plt.tight_layout()
+    plt.savefig(out_path, dpi=dpi, bbox_inches="tight")
+    plt.close()
+    return out_path

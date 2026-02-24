@@ -2,10 +2,7 @@
 
 from pathlib import Path
 import shutil
-import sys
 import unittest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from output_pack import generate_output_pack
 

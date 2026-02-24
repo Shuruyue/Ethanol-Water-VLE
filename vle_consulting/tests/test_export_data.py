@@ -2,12 +2,9 @@
 
 from pathlib import Path
 import shutil
-import sys
 import unittest
 
 import numpy as np
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from export_data import export_full_data_bundle
 from pipeline import run_analysis

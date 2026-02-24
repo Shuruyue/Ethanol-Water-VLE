@@ -1,10 +1,7 @@
 """Tests for parameter database loading."""
 
 from pathlib import Path
-import sys
 import unittest
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from parameter_store import load_system_parameters
 

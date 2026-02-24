@@ -31,8 +31,8 @@
   },
   "metrics": {
     "max_ge_j_mol": 914.5723179995358,
-    "max_he_j_mol": 67.40517333091485,
-    "min_he_j_mol": -224.88488545335682,
+    "max_he_j_mol": 67.40517340861021,
+    "min_he_j_mol": -224.88488545822793,
     "reference_temperature_c": 78.2
   },
   "azeotrope": {

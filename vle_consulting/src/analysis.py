@@ -6,7 +6,7 @@ from dataclasses import dataclass
 
 import numpy as np
 
-from models import NRTLParams, R_GAS, gamma_nrtl
+from models import NRTLParams, R_GAS, gamma_nrtl, gamma_nrtl_with_derivatives
 
 
 @dataclass(frozen=True)
@@ -26,23 +26,27 @@ def excess_gibbs_energy(x1: float, T_kelvin: float, nrtl_params: NRTLParams) -> 
 
 
 def excess_enthalpy(x1: float, T_kelvin: float, nrtl_params: NRTLParams, delta_t: float = 1e-3) -> float:
-    """Molar excess enthalpy, J/mol."""
-    gamma1_p, gamma2_p = gamma_nrtl(x1, T_kelvin + delta_t, nrtl_params)
-    gamma1_m, gamma2_m = gamma_nrtl(x1, T_kelvin - delta_t, nrtl_params)
+    r"""Molar excess enthalpy, J/mol.
 
-    dln_gamma1_dt = (np.log(gamma1_p) - np.log(gamma1_m)) / (2.0 * delta_t)
-    dln_gamma2_dt = (np.log(gamma2_p) - np.log(gamma2_m)) / (2.0 * delta_t)
-
-    return -R_GAS * (T_kelvin**2) * (x1 * dln_gamma1_dt + (1.0 - x1) * dln_gamma2_dt)
+    Uses analytical derivatives: HE = -RT^2 * sum(xi * d(ln gamma_i)/dT).
+    The ``delta_t`` parameter is kept for backward compatibility but is ignored
+    when analytical derivatives are available.
+    """
+    _ = delta_t  # kept for API compatibility
+    g1, g2, dlng1_dT, dlng2_dT = gamma_nrtl_with_derivatives(x1, T_kelvin, nrtl_params)
+    return -R_GAS * (T_kelvin**2) * (x1 * dlng1_dT + (1.0 - x1) * dlng2_dT)
 
 
 def excess_heat_capacity(
     x1: float,
     T_kelvin: float,
     nrtl_params: NRTLParams,
-    delta_t: float = 0.05,
+    delta_t: float = 0.01,
 ) -> float:
-    """Molar excess heat capacity, J/(mol*K), as d(HE)/dT."""
+    """Molar excess heat capacity, J/(mol*K), as d(HE)/dT.
+
+    Uses numerical derivative of the analytical HE for second-order accuracy.
+    """
     h_plus = excess_enthalpy(x1, T_kelvin + delta_t, nrtl_params)
     h_minus = excess_enthalpy(x1, T_kelvin - delta_t, nrtl_params)
     return (h_plus - h_minus) / (2.0 * delta_t)
