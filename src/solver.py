@@ -7,9 +7,10 @@ from collections.abc import Callable, Iterable
 import numpy as np
 from scipy.optimize import brentq
 
-from models import AntoineParams, psat_kpa
+from models import AntoineParams, NRTLParams, VanLaarParams, _FLOAT_FLOOR, psat_kpa
 
-GammaFunction = Callable[[float, float, object], tuple[float, float]]
+GammaParams = NRTLParams | VanLaarParams | None
+GammaFunction = Callable[[float, float, GammaParams], tuple[float, float]]
 
 
 def bubble_residual(
@@ -42,14 +43,21 @@ def solve_bubble_temperature(
     t_high: float = 120.0,
 ) -> float:
     """Solve bubble temperature in deg C at fixed pressure and composition."""
-    return float(
-        brentq(
-            bubble_residual,
-            t_low,
-            t_high,
-            args=(x1, pressure_kpa, component_1, component_2, gamma_fn, gamma_params),
+    try:
+        return float(
+            brentq(
+                bubble_residual,
+                t_low,
+                t_high,
+                args=(x1, pressure_kpa, component_1, component_2, gamma_fn, gamma_params),
+            )
         )
-    )
+    except ValueError as exc:
+        raise ValueError(
+            f"Bubble-point solver failed at x1={x1:.4f}, P={pressure_kpa:.2f} kPa, "
+            f"search range=[{t_low}, {t_high}] deg C. "
+            f"Check Antoine correlation validity. Original: {exc}"
+        ) from exc
 
 
 def compute_txy(
@@ -79,7 +87,7 @@ def compute_txy(
 
         y1 = x1 * gamma1 * psat_kpa(T_celsius, component_1) / pressure_kpa
         y2 = (1.0 - x1) * gamma2 * psat_kpa(T_celsius, component_2) / pressure_kpa
-        y1 /= max(y1 + y2, 1e-30)
+        y1 /= max(y1 + y2, _FLOAT_FLOOR)
 
         t_list.append(T_celsius)
         y_list.append(float(y1))

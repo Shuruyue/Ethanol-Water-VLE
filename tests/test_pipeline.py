@@ -1,12 +1,9 @@
 """Tests for the VLE pipeline."""
 
 from pathlib import Path
-import sys
 import unittest
 
 import numpy as np
-
-sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
 from analysis import compute_isothermal_excess_curves
 from parameter_store import load_system_parameters
