@@ -3,11 +3,16 @@
 
 from __future__ import annotations
 
+import csv
+from io import StringIO
+from dataclasses import replace
+
 import numpy as np
 
-from analysis import compute_gamma_curves, compute_isothermal_excess_curves, find_azeotrope
-from models import NRTLParams, gamma_ideal, gamma_nrtl, psat_kpa
+from analysis import find_azeotrope
+from models import NRTLParams, gamma_ideal, gamma_nrtl, gamma_van_laar
 from parameter_store import load_system_parameters
+from profiles import build_isothermal_profile
 from solver import compute_txy
 
 try:
@@ -62,13 +67,17 @@ def compute_dashboard(
         gamma_params=params,
         x_grid=x_grid,
     )
+    x_v, y_v, T_v = compute_txy(
+        pressure_kpa=pressure_kpa,
+        component_1=system.component_1.antoine,
+        component_2=system.component_2.antoine,
+        gamma_fn=gamma_van_laar,
+        gamma_params=system.van_laar,
+        x_grid=x_grid,
+    )
 
-    GE_ref, HE_ref, CPE_ref = compute_isothermal_excess_curves(x_grid, temp_ref_c, params)
-    gamma1_ref, gamma2_ref = compute_gamma_curves(x_grid, temp_ref_c, params)
-
-    psat1 = psat_kpa(temp_ref_c, system.component_1.antoine)
-    psat2 = psat_kpa(temp_ref_c, system.component_2.antoine)
-    alpha_rel = (gamma1_ref * psat1) / np.maximum(gamma2_ref * psat2, 1e-30)
+    tuned_system = replace(system, pressure_kpa=pressure_kpa, nrtl=params)
+    iso = build_isothermal_profile(system=tuned_system, temperature_c=temp_ref_c, points=points)
 
     azeo = find_azeotrope(x_n, y_n, T_n, tolerance=0.01)
 
@@ -81,12 +90,15 @@ def compute_dashboard(
         "x_n": x_n,
         "y_n": y_n,
         "T_n": T_n,
-        "GE_ref": GE_ref,
-        "HE_ref": HE_ref,
-        "CPE_ref": CPE_ref,
-        "gamma1_ref": gamma1_ref,
-        "gamma2_ref": gamma2_ref,
-        "alpha_rel": alpha_rel,
+        "x_v": x_v,
+        "y_v": y_v,
+        "T_v": T_v,
+        "GE_ref": iso.GE_j_mol,
+        "HE_ref": iso.HE_j_mol,
+        "CPE_ref": iso.CPE_j_molK,
+        "gamma1_ref": iso.gamma1,
+        "gamma2_ref": iso.gamma2,
+        "alpha_rel": iso.alpha12,
         "azeo": azeo,
     }
 
@@ -95,8 +107,11 @@ def _plot_txy(data):
     fig, ax = plt.subplots(figsize=(7, 5))
     ax.plot(data["x_i"], data["T_i"], "b-", linewidth=1.4, label="ideal bubble")
     ax.plot(data["y_i"], data["T_i"], "b--", linewidth=1.4, label="ideal dew")
+    ax.plot(data["x_v"], data["T_v"], color="green", linewidth=1.5, label="van laar bubble")
+    ax.plot(data["y_v"], data["T_v"], color="green", linestyle="--", linewidth=1.5, label="van laar dew")
     ax.plot(data["x_n"], data["T_n"], "r-", linewidth=2.0, label="nrtl bubble")
     ax.plot(data["y_n"], data["T_n"], "r--", linewidth=2.0, label="nrtl dew")
+    ax.scatter([0.8943], [78.15], marker="D", color="black", s=28, label="lit azeotrope")
     ax.set_xlabel("ethanol mole fraction")
     ax.set_ylabel("temperature (deg C)")
     ax.set_title("T-x-y")
@@ -111,6 +126,7 @@ def _plot_yx(data):
     fig, ax = plt.subplots(figsize=(6, 6))
     ax.plot([0.0, 1.0], [0.0, 1.0], "k:", linewidth=1.0, label="y=x")
     ax.plot(data["x_i"], data["y_i"], "b-", linewidth=1.4, label="ideal")
+    ax.plot(data["x_v"], data["y_v"], color="green", linewidth=1.5, label="van laar")
     ax.plot(data["x_n"], data["y_n"], "r-", linewidth=2.0, label="nrtl")
     ax.set_xlabel("x1")
     ax.set_ylabel("y1")
@@ -161,6 +177,48 @@ def _plot_gamma_alpha(data, temp_ref_c: float):
 
     fig.tight_layout()
     return fig
+
+
+def _build_dashboard_csv(data, temp_ref_c: float) -> str:
+    """Build downloadable CSV for the dashboard state."""
+    handle = StringIO()
+    writer = csv.writer(handle)
+    writer.writerow(
+        [
+            "x1",
+            "y1_ideal",
+            "T_ideal_c",
+            "y1_van_laar",
+            "T_van_laar_c",
+            "y1_nrtl",
+            "T_nrtl_c",
+            f"GE_{temp_ref_c:.1f}C_j_mol",
+            f"HE_{temp_ref_c:.1f}C_j_mol",
+            f"CPE_{temp_ref_c:.1f}C_j_molK",
+            f"gamma1_{temp_ref_c:.1f}C",
+            f"gamma2_{temp_ref_c:.1f}C",
+            f"alpha12_{temp_ref_c:.1f}C",
+        ]
+    )
+    for i in range(len(data["x_n"])):
+        writer.writerow(
+            [
+                float(data["x_n"][i]),
+                float(data["y_i"][i]),
+                float(data["T_i"][i]),
+                float(data["y_v"][i]),
+                float(data["T_v"][i]),
+                float(data["y_n"][i]),
+                float(data["T_n"][i]),
+                float(data["GE_ref"][i]),
+                float(data["HE_ref"][i]),
+                float(data["CPE_ref"][i]),
+                float(data["gamma1_ref"][i]),
+                float(data["gamma2_ref"][i]),
+                float(data["alpha_rel"][i]),
+            ]
+        )
+    return handle.getvalue()
 
 
 def main() -> None:
@@ -222,15 +280,37 @@ def main() -> None:
     if data["azeo"] is None:
         col4.metric("azeotrope", "not found")
     else:
-        col4.metric("azeotrope x1", f"{data['azeo'].x1:.4f}")
+        col4.metric("azeotrope x1", f"{data['azeo'].x1:.4f}", delta=f"{data['azeo'].x1 - 0.8943:+.4f} vs lit")
 
-    row1_col1, row1_col2 = st.columns(2)
-    row1_col1.pyplot(_plot_txy(data), clear_figure=True)
-    row1_col2.pyplot(_plot_yx(data), clear_figure=True)
+    tab_vle, tab_excess, tab_data = st.tabs(["VLE Maps", "Excess Thermodynamics", "Data & Diagnostics"])
 
-    row2_col1, row2_col2 = st.columns(2)
-    row2_col1.pyplot(_plot_excess(data, temp_ref_c), clear_figure=True)
-    row2_col2.pyplot(_plot_gamma_alpha(data, temp_ref_c), clear_figure=True)
+    with tab_vle:
+        row1_col1, row1_col2 = st.columns(2)
+        row1_col1.pyplot(_plot_txy(data), clear_figure=True)
+        row1_col2.pyplot(_plot_yx(data), clear_figure=True)
+
+    with tab_excess:
+        row2_col1, row2_col2 = st.columns(2)
+        row2_col1.pyplot(_plot_excess(data, temp_ref_c), clear_figure=True)
+        row2_col2.pyplot(_plot_gamma_alpha(data, temp_ref_c), clear_figure=True)
+
+    with tab_data:
+        csv_payload = _build_dashboard_csv(data, temp_ref_c)
+        st.download_button(
+            label="Download current dashboard data (CSV)",
+            data=csv_payload,
+            file_name=f"dashboard_state_{temp_ref_c:.1f}C_{pressure_kpa:.1f}kPa.csv",
+            mime="text/csv",
+        )
+        if data["azeo"] is not None:
+            st.write(
+                f"Detected azeotrope: x1={data['azeo'].x1:.5f}, y1={data['azeo'].y1:.5f}, "
+                f"T={data['azeo'].temperature_c:.3f} deg C, |x-y|={data['azeo'].abs_error:.6f}"
+            )
+        st.write(
+            f"Relative volatility range at {temp_ref_c:.1f} deg C: "
+            f"{float(np.min(data['alpha_rel'])):.3f} to {float(np.max(data['alpha_rel'])):.3f}"
+        )
 
     st.subheader("Parameter Sources")
     st.write(f"NRTL: {base_system.nrtl_source.name}")
