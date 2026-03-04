@@ -9,8 +9,10 @@ from models import (
     AntoineParams,
     NRTLParams,
     VanLaarParams,
+    dpsat_dT_kpa_per_celsius,
     gamma_ideal,
     gamma_nrtl,
+    gamma_nrtl_binary,
     gamma_van_laar,
     psat_kpa,
     tau_value,
@@ -51,6 +53,14 @@ class TestAntoineEquation(unittest.TestCase):
         # Should be 10^(7 - 1000/250) * 0.133322 = 10^3 * 0.133322
         expected = (10.0 ** (7.0 - 1000.0 / 250.0)) * 0.133322
         self.assertAlmostEqual(result_mmhg, expected, places=6)
+
+    def test_psat_temperature_derivative_matches_finite_difference(self):
+        """Antoine dPsat/dT should match central finite difference."""
+        T = 78.0
+        delta = 1e-4
+        dpsat_analytic = dpsat_dT_kpa_per_celsius(T, self.ethanol)
+        dpsat_fd = (psat_kpa(T + delta, self.ethanol) - psat_kpa(T - delta, self.ethanol)) / (2.0 * delta)
+        self.assertAlmostEqual(dpsat_analytic, dpsat_fd, delta=abs(dpsat_fd) * 1e-6 + 1e-8)
 
 
 class TestNRTLModel(unittest.TestCase):
@@ -103,6 +113,17 @@ class TestNRTLModel(unittest.TestCase):
     def test_tau_value(self):
         """tau(T) = a + b/T."""
         self.assertAlmostEqual(tau_value(1.0, 100.0, 350.0), 1.0 + 100.0 / 350.0, places=10)
+
+    def test_vectorized_nrtl_matches_scalar(self):
+        """Vectorized NRTL implementation should match scalar outputs."""
+        T_K = 351.15
+        x = np.linspace(0.05, 0.95, 12)
+        g1_vec, g2_vec = gamma_nrtl_binary(x, T_K, self.nrtl)
+
+        for i, x1 in enumerate(x):
+            g1, g2 = gamma_nrtl(float(x1), T_K, self.nrtl)
+            self.assertAlmostEqual(float(g1_vec[i]), g1, places=12)
+            self.assertAlmostEqual(float(g2_vec[i]), g2, places=12)
 
 
 class TestVanLaarModel(unittest.TestCase):

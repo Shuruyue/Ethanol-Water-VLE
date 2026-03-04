@@ -387,6 +387,7 @@ def plot_txy_with_experiment(
     exp_y: np.ndarray | None = None,
     exp_t: np.ndarray | None = None,
     data_source: str = "experimental",
+    add_literature_azeotrope: bool = True,
     dpi: int = 300,
 ) -> Path:
     """Save T-x-y plot with experimental data overlay.
@@ -411,6 +412,16 @@ def plot_txy_with_experiment(
     if exp_y is not None and exp_t is not None:
         plt.scatter(exp_y, exp_t, marker="^", c="cyan", s=40, zorder=5,
                     label=f"{data_source} (vapor)", edgecolors="darkblue", linewidths=0.5)
+    if add_literature_azeotrope:
+        plt.scatter(
+            [0.8943],
+            [78.15],
+            marker="D",
+            c="black",
+            s=32,
+            zorder=6,
+            label="literature azeotrope",
+        )
 
     plt.xlabel("ethanol mole fraction (x1 or y1)")
     plt.ylabel("temperature (deg C)")

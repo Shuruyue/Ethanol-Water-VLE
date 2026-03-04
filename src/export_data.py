@@ -9,14 +9,8 @@ from pathlib import Path
 
 import numpy as np
 
-from analysis import (
-    compute_gamma_curves,
-    compute_isothermal_excess_curves,
-    find_azeotrope,
-)
-from models import gamma_nrtl
 from parameter_store import SystemParameters, load_system_parameters
-from solver import compute_txy
+from profiles import build_isothermal_profile, build_pressure_sensitivity_profile
 
 
 def _write_csv(path: Path, header: list[str], rows: list[list[float | str]]) -> Path:
@@ -75,27 +69,25 @@ def export_isothermal_data(
 ) -> dict[str, Path]:
     """Export GE/HE/CPE/gamma at a fixed temperature."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    x = np.linspace(0.01, 0.99, points)
-
-    GE, HE, CPE = compute_isothermal_excess_curves(x, temperature_c, system.nrtl)
-    gamma1, gamma2 = compute_gamma_curves(x, temperature_c, system.nrtl)
+    iso = build_isothermal_profile(system=system, temperature_c=temperature_c, points=points)
 
     iso_rows: list[list[float | str]] = []
     for i in range(points):
         iso_rows.append(
             [
-                float(x[i]),
-                float(GE[i]),
-                float(HE[i]),
-                float(CPE[i]),
-                float(gamma1[i]),
-                float(gamma2[i]),
+                float(iso.x[i]),
+                float(iso.GE_j_mol[i]),
+                float(iso.HE_j_mol[i]),
+                float(iso.CPE_j_molK[i]),
+                float(iso.gamma1[i]),
+                float(iso.gamma2[i]),
+                float(iso.alpha12[i]),
             ]
         )
 
     iso_path = _write_csv(
         output_dir / f"isothermal_properties_{temperature_c:.1f}C.csv",
-        ["x1", "GE_j_mol", "HE_j_mol", "CPE_j_molK", "gamma1", "gamma2"],
+        ["x1", "GE_j_mol", "HE_j_mol", "CPE_j_molK", "gamma1", "gamma2", "alpha12"],
         iso_rows,
     )
 
@@ -110,23 +102,21 @@ def export_pressure_sensitivity_data(
 ) -> dict[str, Path]:
     """Export pressure-vs-azeotrope table."""
     output_dir.mkdir(parents=True, exist_ok=True)
-    x_grid = np.linspace(0.01, 0.99, points)
+    sweep = build_pressure_sensitivity_profile(system=system, pressure_values_kpa=pressure_values_kpa, points=points)
 
     rows: list[list[float | str]] = []
-    for pressure in pressure_values_kpa:
-        x_n, y_n, T_n = compute_txy(
-            pressure_kpa=float(pressure),
-            component_1=system.component_1.antoine,
-            component_2=system.component_2.antoine,
-            gamma_fn=gamma_nrtl,
-            gamma_params=system.nrtl,
-            x_grid=x_grid,
-        )
-        azeo = find_azeotrope(x_n, y_n, T_n, tolerance=0.01)
-        if azeo is None:
+    for i, pressure in enumerate(sweep.pressure_kpa):
+        if np.isnan(sweep.azeotrope_x1[i]):
             rows.append([float(pressure), "", "", ""])
         else:
-            rows.append([float(pressure), azeo.x1, azeo.y1, azeo.temperature_c])
+            rows.append(
+                [
+                    float(pressure),
+                    float(sweep.azeotrope_x1[i]),
+                    float(sweep.azeotrope_y1[i]),
+                    float(sweep.azeotrope_temperature_c[i]),
+                ]
+            )
 
     sensitivity_path = _write_csv(
         output_dir / "azeotrope_pressure_sensitivity.csv",
@@ -144,6 +134,7 @@ def export_run_summary_json(
 ) -> Path:
     """Export key metrics and source metadata."""
     output_dir.mkdir(parents=True, exist_ok=True)
+    iso = build_isothermal_profile(result.system, temperature_c=t_ref_celsius, points=len(result.nrtl.x))
 
     payload = {
         "system": {
@@ -181,6 +172,8 @@ def export_run_summary_json(
             "max_he_j_mol": float(np.max(result.HE_j_mol)),
             "min_he_j_mol": float(np.min(result.HE_j_mol)),
             "reference_temperature_c": float(t_ref_celsius),
+            "max_relative_volatility_ref": float(np.max(iso.alpha12)),
+            "min_relative_volatility_ref": float(np.min(iso.alpha12)),
         },
         "azeotrope": None,
     }
@@ -191,6 +184,8 @@ def export_run_summary_json(
             "y1": float(result.azeotrope.y1),
             "temperature_c": float(result.azeotrope.temperature_c),
             "abs_error": float(result.azeotrope.abs_error),
+            "x1_vs_literature_0p8943": float(result.azeotrope.x1 - 0.8943),
+            "temperature_vs_literature_78p15": float(result.azeotrope.temperature_c - 78.15),
         }
 
     summary_path = output_dir / "run_summary.json"

@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+from collections.abc import Callable
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -19,6 +20,8 @@ from plotting import (
     plot_yx,
 )
 from solver import compute_txy
+
+CurveBuilderFn = Callable[[float, float, object], tuple[float, float]]
 
 
 @dataclass(frozen=True)
@@ -44,6 +47,23 @@ class RunResult:
     output_files: tuple[Path, ...]
 
 
+def _build_curve(
+    system: SystemParameters,
+    x_grid: np.ndarray,
+    gamma_fn: CurveBuilderFn,
+    gamma_params: object,
+) -> CurveResult:
+    x, y, T = compute_txy(
+        pressure_kpa=system.pressure_kpa,
+        component_1=system.component_1.antoine,
+        component_2=system.component_2.antoine,
+        gamma_fn=gamma_fn,
+        gamma_params=gamma_params,
+        x_grid=x_grid,
+    )
+    return CurveResult(x=x, y=y, T_celsius=T)
+
+
 def run_analysis(
     system_id: str = "ethanol_water_1atm",
     points: int = 60,
@@ -53,56 +73,51 @@ def run_analysis(
     """Run full VLE workflow for one system ID."""
     system = load_system_parameters(system_id=system_id)
     x_grid = np.linspace(0.01, 0.99, points)
+    ideal_curve = _build_curve(system, x_grid, gamma_ideal, None)
+    van_laar_curve = _build_curve(system, x_grid, gamma_van_laar, system.van_laar)
+    nrtl_curve = _build_curve(system, x_grid, gamma_nrtl, system.nrtl)
 
-    x_i, y_i, T_i = compute_txy(
-        pressure_kpa=system.pressure_kpa,
-        component_1=system.component_1.antoine,
-        component_2=system.component_2.antoine,
-        gamma_fn=gamma_ideal,
-        gamma_params=None,
-        x_grid=x_grid,
-    )
-
-    x_v, y_v, T_v = compute_txy(
-        pressure_kpa=system.pressure_kpa,
-        component_1=system.component_1.antoine,
-        component_2=system.component_2.antoine,
-        gamma_fn=gamma_van_laar,
-        gamma_params=system.van_laar,
-        x_grid=x_grid,
-    )
-
-    x_n, y_n, T_n = compute_txy(
-        pressure_kpa=system.pressure_kpa,
-        component_1=system.component_1.antoine,
-        component_2=system.component_2.antoine,
-        gamma_fn=gamma_nrtl,
-        gamma_params=system.nrtl,
-        x_grid=x_grid,
-    )
-
-    GE, HE = compute_excess_curves(x_n, T_n, system.nrtl)
-    azeotrope = find_azeotrope(x_n, y_n, T_n, tolerance=0.01)
+    GE, HE = compute_excess_curves(nrtl_curve.x, nrtl_curve.T_celsius, system.nrtl)
+    azeotrope = find_azeotrope(nrtl_curve.x, nrtl_curve.y, nrtl_curve.T_celsius, tolerance=0.01)
 
     output_files: list[Path] = []
     if save_plots:
         plot_dir = Path(output_dir) if output_dir else Path(__file__).resolve().parents[1] / "figures"
         output_files.extend(
             [
-                plot_txy(plot_dir, x_i, y_i, T_i, x_v, y_v, T_v, x_n, y_n, T_n),
-                plot_yx(plot_dir, x_i, y_i, x_v, y_v, x_n, y_n),
-                plot_excess_gibbs(plot_dir, x_n, GE),
-                plot_excess_enthalpy(plot_dir, x_n, HE),
-                plot_mccabe_thiele(plot_dir, x_n, y_n, xD=0.85, xB=0.05, xF=0.3, R_reflux=2.0),
-                plot_txy_with_experiment(plot_dir, x_n, y_n, T_n),
+                plot_txy(
+                    plot_dir,
+                    ideal_curve.x,
+                    ideal_curve.y,
+                    ideal_curve.T_celsius,
+                    van_laar_curve.x,
+                    van_laar_curve.y,
+                    van_laar_curve.T_celsius,
+                    nrtl_curve.x,
+                    nrtl_curve.y,
+                    nrtl_curve.T_celsius,
+                ),
+                plot_yx(
+                    plot_dir,
+                    ideal_curve.x,
+                    ideal_curve.y,
+                    van_laar_curve.x,
+                    van_laar_curve.y,
+                    nrtl_curve.x,
+                    nrtl_curve.y,
+                ),
+                plot_excess_gibbs(plot_dir, nrtl_curve.x, GE),
+                plot_excess_enthalpy(plot_dir, nrtl_curve.x, HE),
+                plot_mccabe_thiele(plot_dir, nrtl_curve.x, nrtl_curve.y, xD=0.85, xB=0.05, xF=0.3, R_reflux=2.0),
+                plot_txy_with_experiment(plot_dir, nrtl_curve.x, nrtl_curve.y, nrtl_curve.T_celsius),
             ]
         )
 
     return RunResult(
         system=system,
-        ideal=CurveResult(x=x_i, y=y_i, T_celsius=T_i),
-        van_laar=CurveResult(x=x_v, y=y_v, T_celsius=T_v),
-        nrtl=CurveResult(x=x_n, y=y_n, T_celsius=T_n),
+        ideal=ideal_curve,
+        van_laar=van_laar_curve,
+        nrtl=nrtl_curve,
         GE_j_mol=GE,
         HE_j_mol=HE,
         azeotrope=azeotrope,
