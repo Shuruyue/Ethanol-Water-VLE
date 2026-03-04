@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from math import log as _log
 
 import numpy as np
 
@@ -22,7 +23,7 @@ class AzeotropePoint:
 def excess_gibbs_energy(x1: float, T_kelvin: float, nrtl_params: NRTLParams) -> float:
     """Molar excess Gibbs energy, J/mol."""
     gamma1, gamma2 = gamma_nrtl(x1, T_kelvin, nrtl_params)
-    return R_GAS * T_kelvin * (x1 * np.log(gamma1) + (1.0 - x1) * np.log(gamma2))
+    return R_GAS * T_kelvin * (x1 * _log(gamma1) + (1.0 - x1) * _log(gamma2))
 
 
 def excess_enthalpy(x1: float, T_kelvin: float, nrtl_params: NRTLParams, delta_t: float = 1e-3) -> float:
