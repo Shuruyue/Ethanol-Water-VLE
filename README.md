@@ -39,9 +39,16 @@ vle_consulting/
 │   ├── profiles.py
 │   └── plotting.py
 └── tests/
-    ├── test_parameter_store.py
+    ├── conftest.py
+    ├── test_models.py
+    ├── test_solver.py
+    ├── test_analysis.py
+    ├── test_plotting.py
     ├── test_pipeline.py
-    └── test_output_pack.py
+    ├── test_parameter_store.py
+    ├── test_output_pack.py
+    ├── test_export_data.py
+    └── verify_scientific_correctness.py
 ```
 
 ## Install
