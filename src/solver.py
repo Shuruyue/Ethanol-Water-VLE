@@ -209,7 +209,7 @@ def compute_txy(
     x_grid: Iterable[float],
 ) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
     """Compute x, y, and T arrays for a binary system."""
-    x_array = np.asarray(list(x_grid), dtype=float)
+    x_array = np.asarray(x_grid, dtype=float)
     t_list: list[float] = []
     y_list: list[float] = []
     previous_temperature: float | None = None
