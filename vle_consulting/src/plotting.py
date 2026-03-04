@@ -14,6 +14,102 @@ def _ensure_output_dir(output_dir: Path | str) -> Path:
     return path
 
 
+def _operating_line_params(
+    xD: float,
+    xB: float,
+    xF: float,
+    q: float,
+    R_reflux: float,
+) -> tuple[float, float, float, float, float, float]:
+    """Return rectifying/stripping line parameters and intersection."""
+    slope_rect = R_reflux / (R_reflux + 1.0)
+    intercept_rect = xD / (R_reflux + 1.0)
+
+    if abs(q - 1.0) < 1e-9:
+        x_intersect = xF
+    else:
+        slope_q = q / (q - 1.0)
+        intercept_q = -xF / (q - 1.0)
+        x_intersect = (intercept_rect - intercept_q) / (slope_q - slope_rect)
+    y_intersect = slope_rect * x_intersect + intercept_rect
+
+    slope_strip = (y_intersect - xB) / max(x_intersect - xB, 1e-12)
+    intercept_strip = xB - slope_strip * xB
+    return slope_rect, intercept_rect, slope_strip, intercept_strip, x_intersect, y_intersect
+
+
+def _mccabe_thiele_steps(
+    x_nrtl: np.ndarray,
+    y_nrtl: np.ndarray,
+    xD: float,
+    xB: float,
+    xF: float,
+    q: float,
+    R_reflux: float,
+    max_stages: int,
+) -> tuple[np.ndarray, np.ndarray, int, float, float, float, float, float]:
+    """Build McCabe-Thiele stepping path in y-x space."""
+    from scipy.interpolate import interp1d
+
+    slope_rect, intercept_rect, slope_strip, intercept_strip, x_intersect, _ = _operating_line_params(
+        xD=xD, xB=xB, xF=xF, q=q, R_reflux=R_reflux
+    )
+
+    # McCabe-Thiele stepping requires inverse equilibrium relation x = f^{-1}(y).
+    order = np.argsort(y_nrtl)
+    y_sorted = np.asarray(y_nrtl, dtype=float)[order]
+    x_sorted = np.asarray(x_nrtl, dtype=float)[order]
+    y_unique, unique_idx = np.unique(y_sorted, return_index=True)
+    x_unique = x_sorted[unique_idx]
+
+    x_from_y = interp1d(y_unique, x_unique, kind="linear", fill_value="extrapolate")
+
+    stages_x = [xD]
+    stages_y = [xD]
+    x_curr = xD
+    y_curr = xD
+    n_stages = 0
+
+    for _ in range(max_stages):
+        y_query = float(np.clip(y_curr, float(y_unique[0]), float(y_unique[-1])))
+        x_eq = float(np.clip(x_from_y(y_query), 0.0, 1.0))
+
+        # Horizontal move to equilibrium curve.
+        stages_x.extend([x_curr, x_eq])
+        stages_y.extend([y_curr, y_curr])
+
+        n_stages += 1
+        if x_eq <= xB + 1e-8:
+            break
+
+        # Vertical move to operating line.
+        if x_eq >= x_intersect:
+            y_next = slope_rect * x_eq + intercept_rect
+        else:
+            y_next = slope_strip * x_eq + intercept_strip
+        y_next = float(np.clip(y_next, 0.0, 1.0))
+
+        stages_x.extend([x_eq, x_eq])
+        stages_y.extend([y_curr, y_next])
+
+        if abs(x_eq - x_curr) < 1e-10 and abs(y_next - y_curr) < 1e-10:
+            break
+
+        x_curr = x_eq
+        y_curr = y_next
+
+    return (
+        np.asarray(stages_x, dtype=float),
+        np.asarray(stages_y, dtype=float),
+        n_stages,
+        slope_rect,
+        intercept_rect,
+        slope_strip,
+        intercept_strip,
+        x_intersect,
+    )
+
+
 def plot_txy(
     output_dir: Path | str,
     x_ideal: np.ndarray,
@@ -288,59 +384,19 @@ def plot_mccabe_thiele(
     max_stages : int
         Maximum stepping stages for safety.
     """
-    from scipy.interpolate import interp1d
-
     out_dir = _ensure_output_dir(output_dir)
     out_path = out_dir / "mccabe_thiele_ethanol_water.png"
 
-    # Interpolation for y = f(x)
-    y_eq = interp1d(x_nrtl, y_nrtl, kind="linear", fill_value="extrapolate")
-
-    # Rectifying operating line: y = (R/(R+1))*x + xD/(R+1)
-    slope_rect = R_reflux / (R_reflux + 1.0)
-    intercept_rect = xD / (R_reflux + 1.0)
-
-    # q-line intersection with rectifying line
-    if abs(q - 1.0) < 1e-6:
-        x_intersect = xF
-    else:
-        # q-line: y = (q/(q-1))*x - xF/(q-1)
-        slope_q = q / (q - 1.0)
-        intercept_q = -xF / (q - 1.0)
-        x_intersect = (intercept_rect - intercept_q) / (slope_q - slope_rect)
-    y_intersect = slope_rect * x_intersect + intercept_rect
-
-    # Stripping operating line: through (xB, xB) and (x_intersect, y_intersect)
-    slope_strip = (y_intersect - xB) / max(x_intersect - xB, 1e-10)
-    intercept_strip = xB - slope_strip * xB
-
-    # Stepping from xD down
-    stages_x = [xD]
-    stages_y = [xD]
-    x_curr = xD
-    n_stages = 0
-
-    for _ in range(max_stages):
-        # Horizontal line to equilibrium curve
-        y_curr = float(y_eq(x_curr))
-        if y_curr <= xB:
-            break
-        stages_x.extend([x_curr, x_curr])
-        stages_y.extend([x_curr, y_curr])
-
-        # Vertical line down to operating line
-        if x_curr >= x_intersect:
-            x_next = (y_curr - intercept_rect) / max(slope_rect, 1e-10)
-        else:
-            x_next = (y_curr - intercept_strip) / max(slope_strip, 1e-10)
-
-        stages_x.extend([x_curr, x_next])
-        stages_y.extend([y_curr, y_curr])
-        x_curr = x_next
-        n_stages += 1
-
-        if x_curr <= xB:
-            break
+    stages_x, stages_y, n_stages, slope_rect, intercept_rect, slope_strip, intercept_strip, x_intersect = _mccabe_thiele_steps(
+        x_nrtl=x_nrtl,
+        y_nrtl=y_nrtl,
+        xD=xD,
+        xB=xB,
+        xF=xF,
+        q=q,
+        R_reflux=R_reflux,
+        max_stages=max_stages,
+    )
 
     # Plot
     fig, ax = plt.subplots(figsize=(9, 9))
@@ -348,9 +404,9 @@ def plot_mccabe_thiele(
     ax.plot(x_nrtl, y_nrtl, "r-", linewidth=2.0, label="NRTL equilibrium")
 
     # Operating lines
-    x_rect = np.linspace(x_intersect, xD, 50)
+    x_rect = np.linspace(min(x_intersect, xD), max(x_intersect, xD), 50)
     ax.plot(x_rect, slope_rect * x_rect + intercept_rect, "b--", linewidth=1.5, label="rectifying")
-    x_strip = np.linspace(xB, x_intersect, 50)
+    x_strip = np.linspace(min(xB, x_intersect), max(xB, x_intersect), 50)
     ax.plot(x_strip, slope_strip * x_strip + intercept_strip, "g--", linewidth=1.5, label="stripping")
 
     # Steps

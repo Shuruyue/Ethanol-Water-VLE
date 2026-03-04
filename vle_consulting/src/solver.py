@@ -185,13 +185,13 @@ def solve_bubble_temperature(
         )
         try:
             return float(
-            brentq(
-                bubble_residual,
-                lo,
-                hi,
-                args=(x1, pressure_kpa, component_1, component_2, gamma_fn, gamma_params),
+                brentq(
+                    bubble_residual,
+                    lo,
+                    hi,
+                    args=(x1, pressure_kpa, component_1, component_2, gamma_fn, gamma_params),
+                )
             )
-        )
         except ValueError as exc:
             raise ValueError(
                 f"Bubble-point solver failed at x1={x1:.4f}, P={pressure_kpa:.2f} kPa, "
