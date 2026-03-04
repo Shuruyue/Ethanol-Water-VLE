@@ -11,6 +11,10 @@ The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 - Interactive dashboard (Wolfram-style exploration)
 - Practical image-pack export for engineering decisions
 - Final build pipeline: plots + CSV tables + summary JSON
+- Shared profile engine for CLI/export/UI consistency (`src/profiles.py`)
+- Interpolated azeotrope detection (sub-grid estimate)
+- Isothermal export includes `alpha12` (relative volatility) directly
+- Dashboard supports one-click CSV download of current state
 
 ## Directory
 
@@ -19,8 +23,6 @@ vle_consulting/
 ├── data/
 │   └── parameter_db.json
 ├── figures/
-├── plans/
-│   └── five_phase_plan.md
 ├── references/
 │   └── thermo.pdf
 ├── src/
@@ -34,6 +36,7 @@ vle_consulting/
 │   ├── models.py
 │   ├── solver.py
 │   ├── analysis.py
+│   ├── profiles.py
 │   └── plotting.py
 └── tests/
     ├── test_parameter_store.py
@@ -100,11 +103,39 @@ This generates:
 - `final_outputs/data/baseline/`:
   model curves and bubble-line excess properties CSV
 - `final_outputs/data/isothermal/`:
-  fixed-temperature `GE/HE/CPE/gamma` CSV
+  fixed-temperature `GE/HE/CPE/gamma/alpha12` CSV
 - `final_outputs/data/sensitivity/`:
   azeotrope-pressure sensitivity CSV
 - `final_outputs/data/run_summary.json`:
-  key metrics + parameter-source metadata
+  key metrics + relative-volatility range + azeotrope-vs-literature offsets
+
+## Optimization Notes (Current Version)
+
+### 1) Architecture
+
+- Unified repeated post-processing into `src/profiles.py`.
+- `output_pack.py`, `export_data.py`, and `interactive_app.py` now use the same profile builders.
+- Reduced divergence risk between CLI plots, exported CSV, and dashboard values.
+
+### 2) Core Algorithms
+
+- Added vectorized NRTL evaluator (`gamma_nrtl_binary`) and reused it in excess-property curve generation.
+- Added Antoine derivative function `dPsat/dT` for solver diagnostics and derivative-ready extensions.
+- Bubble-point solver now supports continuation-style bracketing (`T_guess`) to improve robustness.
+- Azeotrope finder now interpolates across `y-x` sign changes for sub-grid accuracy.
+
+### 3) UI and Output
+
+- Dashboard now overlays Van Laar against Ideal/NRTL in both `T-x-y` and `y-x`.
+- Added literature azeotrope marker for quick visual sanity check.
+- Added dashboard CSV download for reporting/review handoff.
+- Extended summary JSON with relative-volatility envelope and azeotrope deviation metrics.
+
+### 4) Verification Loop
+
+- Unit/regression tests: `pytest -q tests` (42 passed)
+- Scientific verification script:
+  - Windows recommendation: `set PYTHONUTF8=1` then `python tests/verify_scientific_correctness.py`
 
 ## Data Rules
 
@@ -129,3 +160,10 @@ To improve real-plant fidelity, add these datasets next:
 - NIST Chemistry WebBook for Antoine coefficients
 - DECHEMA data collection (Gmehling et al.) for NRTL parameters
 - Sandler textbook context for course setting
+
+## Algorithm References
+
+- Renon, H.; Prausnitz, J. M. (1968). *Local compositions in thermodynamic excess functions for liquid mixtures*. AIChE Journal, 14(1), 135-144. (NRTL origin)
+- Michelsen, M. L. (1982). *The Isothermal Flash Problem. Part I. Stability*. Fluid Phase Equilibria, 9, 1-19.
+- Michelsen, M. L. (1982). *The Isothermal Flash Problem. Part II. Phase-Split Calculation*. Fluid Phase Equilibria, 9, 21-40.
+- SciPy documentation for Brent root solver (`scipy.optimize.brentq`) used for robust 1D root finding.

@@ -168,6 +168,18 @@ class TestAzeotropeDetection(unittest.TestCase):
         azeo = find_azeotrope(x, y, T, tolerance=0.001)
         self.assertIsNone(azeo)
 
+    def test_interpolated_azeotrope_crossing(self):
+        """Crossing between grid points should return an interpolated azeotrope."""
+        x = np.array([0.40, 0.60])
+        y = np.array([0.45, 0.55])  # y-x: +0.05 -> -0.05, crossing at x=0.5
+        T = np.array([81.0, 79.0])
+        azeo = find_azeotrope(x, y, T, tolerance=1e-6)
+        self.assertIsNotNone(azeo)
+        self.assertAlmostEqual(azeo.x1, 0.5, places=8)
+        self.assertAlmostEqual(azeo.y1, 0.5, places=8)
+        self.assertAlmostEqual(azeo.temperature_c, 80.0, places=8)
+        self.assertAlmostEqual(azeo.abs_error, 0.0, places=12)
+
 
 if __name__ == "__main__":
     unittest.main()
