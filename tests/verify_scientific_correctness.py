@@ -17,6 +17,10 @@ from math import exp, log
 
 import numpy as np
 
+# Ensure UTF-8 output on Windows (cp950/cp1252 cannot encode ≈, →, etc.)
+if hasattr(sys.stdout, "reconfigure"):
+    sys.stdout.reconfigure(encoding="utf-8")
+
 # Add src to path for imports
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 

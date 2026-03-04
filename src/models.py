@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from collections.abc import Callable
+from math import exp as _exp, log as _log
 
 import numpy as np
 
@@ -97,7 +98,7 @@ def gamma_van_laar(x1: float, T_kelvin: float, params: VanLaarParams) -> tuple[f
     denom = max((params.A12 * x1 + params.A21 * x2) ** 2, _FLOAT_FLOOR)
     ln_gamma1 = params.A12 * (params.A21 * x2) ** 2 / denom
     ln_gamma2 = params.A21 * (params.A12 * x1) ** 2 / denom
-    return float(np.exp(ln_gamma1)), float(np.exp(ln_gamma2))
+    return _exp(ln_gamma1), _exp(ln_gamma2)
 
 
 def tau_value(a_term: float, b_term: float, T_kelvin: float) -> float:
@@ -182,15 +183,15 @@ def gamma_nrtl(x1: float, T_kelvin: float, params: NRTLParams) -> tuple[float, f
     tau12 = tau_value(params.a12, params.b12, T_kelvin)
     tau21 = tau_value(params.a21, params.b21, T_kelvin)
 
-    G12 = np.exp(-params.alpha12 * tau12)
-    G21 = np.exp(-params.alpha21 * tau21)
+    G12 = _exp(-params.alpha12 * tau12)
+    G21 = _exp(-params.alpha21 * tau21)
 
     D1 = max(x1 + x2 * G21, _FLOAT_FLOOR)
     D2 = max(x2 + x1 * G12, _FLOAT_FLOOR)
 
     ln_gamma1 = (x2**2) * (tau21 * (G21 / D1) ** 2 + (tau12 * G12) / (D2**2))
     ln_gamma2 = (x1**2) * (tau12 * (G12 / D2) ** 2 + (tau21 * G21) / (D1**2))
-    return float(np.exp(ln_gamma1)), float(np.exp(ln_gamma2))
+    return _exp(ln_gamma1), _exp(ln_gamma2)
 
 
 def gamma_nrtl_with_derivatives(
@@ -230,6 +231,6 @@ def gamma_with_temperature_derivatives(
 
     g1_plus, g2_plus = gamma_fn(x1, T_kelvin + delta_t, gamma_params)
     g1_minus, g2_minus = gamma_fn(x1, T_kelvin - delta_t, gamma_params)
-    dln_g1_dT = (np.log(max(g1_plus, _FLOAT_FLOOR)) - np.log(max(g1_minus, _FLOAT_FLOOR))) / (2.0 * delta_t)
-    dln_g2_dT = (np.log(max(g2_plus, _FLOAT_FLOOR)) - np.log(max(g2_minus, _FLOAT_FLOOR))) / (2.0 * delta_t)
+    dln_g1_dT = (_log(max(g1_plus, _FLOAT_FLOOR)) - _log(max(g1_minus, _FLOAT_FLOOR))) / (2.0 * delta_t)
+    dln_g2_dT = (_log(max(g2_plus, _FLOAT_FLOOR)) - _log(max(g2_minus, _FLOAT_FLOOR))) / (2.0 * delta_t)
     return gamma1, gamma2, float(dln_g1_dT), float(dln_g2_dT)
