@@ -10,6 +10,7 @@ from pathlib import Path
 import numpy as np
 
 from parameter_store import SystemParameters, load_system_parameters
+from pipeline import RunResult
 from profiles import build_isothermal_profile, build_pressure_sensitivity_profile
 
 
@@ -22,7 +23,7 @@ def _write_csv(path: Path, header: list[str], rows: list[list[float | str]]) -> 
     return path
 
 
-def export_baseline_curve_data(result, output_dir: Path) -> dict[str, Path]:
+def export_baseline_curve_data(result: RunResult, output_dir: Path) -> dict[str, Path]:
     """Export baseline model curves and excess properties."""
     output_dir.mkdir(parents=True, exist_ok=True)
 
@@ -128,7 +129,7 @@ def export_pressure_sensitivity_data(
 
 
 def export_run_summary_json(
-    result,
+    result: RunResult,
     t_ref_celsius: float,
     output_dir: Path,
 ) -> Path:
@@ -196,7 +197,7 @@ def export_run_summary_json(
 
 
 def export_full_data_bundle(
-    result,
+    result: RunResult,
     t_ref_celsius: float,
     points: int,
     pressure_values_kpa: np.ndarray,
