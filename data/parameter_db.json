@@ -11,12 +11,16 @@
             "A": 8.20417,
             "B": 1642.89,
             "C": 230.3,
-            "unit": "mmHg"
+            "unit": "mmHg",
+            "valid_range_c": [
+              -57.0,
+              80.0
+            ]
           },
           "source": {
-            "name": "NIST Chemistry WebBook",
-            "citation": "NIST SRD 69, Antoine coefficients for ethanol in the normal-boiling range.",
-            "url": "https://webbook.nist.gov/"
+            "name": "Common tabulated Antoine set (mmHg, deg C)",
+            "citation": "log10(P/mmHg) = A - B/(T/degC + C); A=8.20417, B=1642.89, C=230.300, tabulated range -57 to 80 degC. NOT a NIST WebBook set (NIST lists ethanol in bar/K, e.g. Ambrose & Sprake 1970: A=5.24677, B=1598.673, C=-46.424, 292.77-366.63 K). Use above 80 degC (water-rich end at 1 atm) is an extrapolation; deviation vs the Schroeder et al. (2014) reference EOS stays below 0.8 % up to 100 degC.",
+            "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C64175&Mask=4"
           }
         },
         "component_2": {
@@ -26,12 +30,16 @@
             "A": 8.07131,
             "B": 1730.63,
             "C": 233.426,
-            "unit": "mmHg"
+            "unit": "mmHg",
+            "valid_range_c": [
+              -20.0,
+              100.0
+            ]
           },
           "source": {
-            "name": "NIST Chemistry WebBook",
-            "citation": "NIST SRD 69, Antoine coefficients for water in the normal-boiling range.",
-            "url": "https://webbook.nist.gov/"
+            "name": "Common tabulated Antoine set (mmHg, deg C)",
+            "citation": "log10(P/mmHg) = A - B/(T/degC + C); A=8.07131, B=1730.63, C=233.426, tabulated range -20 to 100 degC. NOT a NIST WebBook set (NIST uses bar/K). For T > 100 degC use a different set or IAPWS-95.",
+            "url": "https://webbook.nist.gov/cgi/cbook.cgi?ID=C7732185&Mask=4"
           }
         }
       },
@@ -43,8 +51,8 @@
         "a21": 3.458,
         "b21": -586.08,
         "source": {
-          "name": "DECHEMA Data Collection",
-          "citation": "Gmehling, Onken, and Arlt, Vapor-Liquid Equilibrium Data Collection, DECHEMA Chemistry Data Series Vol. I.",
+          "name": "Aspen Plus NRTL databank (regressed from the Dortmund Data Bank)",
+          "citation": "Tabulated in D. Beneke, M. Peters, D. Glasser, D. Hildebrandt, Understanding Distillation Using Column Profile Maps, Wiley, 2013, Appendix B (a12=-0.8009, a21=3.4578, b12=246.18 K, b21=-586.0809 K, alpha=0.3). Not a DECHEMA Vol. I table: DECHEMA lists constant parameters per data set in a different form. Validated against Kamihama et al., J. Chem. Eng. Data 57 (2012) 339: AAD(T)=0.072 K, AAD(y1)=0.0027 at 101.3 kPa.",
           "url": ""
         }
       },
@@ -52,8 +60,8 @@
         "A12": 1.65,
         "A21": 0.95,
         "source": {
-          "name": "Course parameter set",
-          "citation": "Sandler course assignment set used for model comparison only.",
+          "name": "Course example code (illustrative values)",
+          "citation": "A12=1.65, A21=0.95 are the 'Example Van Laar parameters (illustrative)' from the course handout code; not literature values. A weighted fit to Kamihama et al. (2012) gives A12=1.700+/-0.013, A21=0.953+/-0.002 (see report2026/).",
           "url": ""
         }
       }

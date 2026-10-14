@@ -19,6 +19,7 @@ from plotting import (
     plot_txy_with_experiment,
     plot_yx,
 )
+from experimental_data import load_experimental_txy
 from solver import compute_txy
 
 CurveBuilderFn = Callable[[float, float, object], tuple[float, float]]
@@ -82,6 +83,7 @@ def run_analysis(
 
     output_files: list[Path] = []
     if save_plots:
+        experiment = load_experimental_txy()
         plot_dir = Path(output_dir) if output_dir else Path(__file__).resolve().parents[1] / "figures"
         output_files.extend(
             [
@@ -109,7 +111,16 @@ def run_analysis(
                 plot_excess_gibbs(plot_dir, nrtl_curve.x, GE),
                 plot_excess_enthalpy(plot_dir, nrtl_curve.x, HE),
                 plot_mccabe_thiele(plot_dir, nrtl_curve.x, nrtl_curve.y, xD=0.85, xB=0.05, xF=0.3, R_reflux=2.0),
-                plot_txy_with_experiment(plot_dir, nrtl_curve.x, nrtl_curve.y, nrtl_curve.T_celsius),
+                plot_txy_with_experiment(
+                    plot_dir,
+                    nrtl_curve.x,
+                    nrtl_curve.y,
+                    nrtl_curve.T_celsius,
+                    exp_x=experiment.x1,
+                    exp_y=experiment.y1,
+                    exp_t=experiment.T_celsius,
+                    data_source=experiment.label,
+                ),
             ]
         )
 
