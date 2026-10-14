@@ -20,7 +20,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--output-root", default="final_outputs")
     parser.add_argument("--points", type=int, default=80)
     parser.add_argument("--t-ref", type=float, default=78.2)
-    parser.add_argument("--p-min", type=float, default=70.0)
+    parser.add_argument("--p-min", type=float, default=10.0)
     parser.add_argument("--p-max", type=float, default=130.0)
     parser.add_argument("--p-steps", type=int, default=13)
     return parser

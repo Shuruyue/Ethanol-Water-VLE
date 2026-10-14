@@ -64,7 +64,10 @@ def generate_output_pack(
     files.append(plot_activity_coefficients(output_dir, iso.x, iso.gamma1, iso.gamma2, tag=tag))
     files.append(plot_relative_volatility(output_dir, iso.x, iso.alpha12, tag=tag))
 
-    pressure_sweep = np.linspace(70.0, 130.0, 13)
+    # 10-130 kPa (log-spaced): covers the 20 kPa / 101.3 kPa pressure-swing case
+    # discussed in the report; the Antoine sets are extrapolated outside their
+    # tabulated ranges at the ends (see data/parameter_db.json).
+    pressure_sweep = np.geomspace(10.0, 130.0, 13)
     sweep = build_pressure_sensitivity_profile(system=system, pressure_values_kpa=pressure_sweep, points=points)
     files.append(
         plot_azeotrope_pressure_sensitivity(
