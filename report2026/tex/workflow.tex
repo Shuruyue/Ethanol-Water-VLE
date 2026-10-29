@@ -1,0 +1,36 @@
+% Computational workflow (TikZ)
+\begin{tikzpicture}[
+  node distance=4mm and 6mm,
+  box/.style={draw=accent!70!black, rounded corners=2pt, fill=accent!6, align=center,
+              font=\small, minimum height=9mm, text width=31mm, inner sep=3pt},
+  data/.style={box, fill=gray!8, draw=gray!60},
+  outbox/.style={box, fill=warn!8, draw=warn!70!black},
+  arr/.style={-{Stealth[length=2mm]}, semithick, draw=gray!60!black}
+]
+\node[data] (ant) {純物質 $P_i^{\mathrm{sat}}(T)$\\[-1pt]{\footnotesize NIST (EtOH) / IAPWS-95}};
+\node[data, below=of ant] (par) {二元參數\\[-1pt]{\footnotesize Aspen/DDB NRTL；本研究迴歸}};
+\node[data, below=of par] (exp) {實驗 $T$--$x$--$y$\\[-1pt]{\footnotesize Kamihama 等 (2012), 21 點}};
+
+\node[box, right=of ant] (bub) {泡點計算 $T_b(x_1;P)$\\[-1pt]{\footnotesize Brent 法 + $\Phi_i$ 逐次代換}};
+\node[box, below=of bub] (val) {模型驗證\\[-1pt]{\footnotesize AAD、殘差、Herington}};
+\node[box, below=of val] (reg) {加權最小平方迴歸\\[-1pt]{\footnotesize $\chi^2$、共變異矩陣}};
+
+\node[box, right=of bub] (exc) {過剩性質\\[-1pt]{\footnotesize $G^E,H^E,TS^E,C_p^E$}};
+\node[box, below=of exc] (az) {共沸點 $x^{\mathrm{az}}(P)$\\[-1pt]{\footnotesize $y_1-x_1=0$ 求根}};
+\node[box, below=of az] (mt) {McCabe--Thiele\\[-1pt]{\footnotesize $R_{\min}$（切點夾點）、$N$、$Q_B$}};
+
+\node[outbox, right=of az] (rec) {顧問建議\\[-1pt]{\footnotesize 設計、操作、脫水方案}};
+
+\draw[arr] (ant) -- (bub);
+\draw[arr] (par.east) -- ++(3mm,0) |- (bub.west);
+\draw[arr] (exp) -- (reg);
+\draw[arr] (exp.east) -- ++(3mm,0) |- (val.west);
+\draw[arr] (reg) -- (val);
+\draw[arr] (bub) -- (val);
+\draw[arr] (bub) -- (exc);
+\draw[arr] (val.east) -- ++(3mm,0) |- (az.west);
+\draw[arr] (val.east) -- ++(3mm,0) |- (mt.west);
+\draw[arr] (exc.east) -- ++(3mm,0) |- (rec.north);
+\draw[arr] (az) -- (rec);
+\draw[arr] (mt.east) -- ++(3mm,0) |- (rec.south);
+\end{tikzpicture}

@@ -146,7 +146,7 @@ This generates:
 
 ### 4) Verification Loop
 
-- Unit/regression tests: `pytest -q tests` (42 passed)
+- Unit/regression tests: `pytest -q tests` (45 passed, incl. validation against experimental data)
 - Scientific verification script:
   - Windows recommendation: `set PYTHONUTF8=1` then `python tests/verify_scientific_correctness.py`
 
@@ -170,9 +170,30 @@ To improve real-plant fidelity, add these datasets next:
 
 ## References Used In Database
 
-- NIST Chemistry WebBook for Antoine coefficients
-- DECHEMA data collection (Gmehling et al.) for NRTL parameters
-- Sandler textbook context for course setting
+- Antoine coefficients: common tabulated sets in mmHg / deg C (ethanol valid -57 to 80 deg C,
+  water -20 to 100 deg C). These are **not** NIST WebBook sets (NIST uses bar / K);
+  the 1 atm water-rich end (up to 100 deg C) is an extrapolation for ethanol.
+- NRTL parameters: Aspen Plus databank values regressed from the Dortmund Data Bank,
+  as tabulated in Beneke, Peters, Glasser & Hildebrandt, *Understanding Distillation
+  Using Column Profile Maps*, Wiley (2013), Appendix B. (Earlier versions of this README
+  attributed them to DECHEMA Vol. I, which is not correct.)
+- Van Laar parameters: the illustrative values from the course handout code (not literature); kept only for model comparison.
+- Experimental validation data: Kamihama et al., *J. Chem. Eng. Data* 57 (2012) 339-344,
+  doi:10.1021/je2008704 (`data/experimental/`, via NIST TRC ThermoML).
+- Course textbook: Sandler, *Chemical, Biochemical, and Engineering Thermodynamics*, 5th ed., Wiley (2017).
+
+## 2026 Report Revision (`report2026/`)
+
+`report2026/` is a self-contained, fully reproducible rewrite of the final report
+(XeLaTeX + Python). Every number in the PDF is generated from `results/results.json`.
+
+```bash
+cd report2026
+pip install numpy scipy pandas matplotlib chemicals CoolProp
+python calc/run_analysis.py && python calc/make_figures.py
+python calc/make_numbers.py && python calc/make_tables.py
+cd tex && xelatex report.tex && xelatex report.tex
+```
 
 ## Algorithm References
 
