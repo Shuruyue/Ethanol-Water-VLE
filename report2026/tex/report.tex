@@ -10,9 +10,16 @@
 \setsansfont{Latin Modern Sans}
 \setmonofont{Latin Modern Mono}
 \setmathfont{Latin Modern Math}
-\setCJKmainfont{Noto Serif CJK TC}[BoldFont={Noto Serif CJK TC Black},ItalicFont={AR PL KaitiM Big5}]
-\setCJKsansfont{Noto Sans CJK TC}[BoldFont={Noto Sans CJK TC Bold}]
-\setCJKmonofont{Noto Sans CJK TC}
+% CJK：優先使用 Noto CJK TC + 文鼎楷書（Linux 編譯環境）；沒有時改用 Windows 內建的細明體／微軟正黑體／標楷體
+\IfFontExistsTF{Noto Serif CJK TC}
+  {\def\CJKserif{Noto Serif CJK TC}\def\CJKserifbold{Noto Serif CJK TC Black}%
+   \def\CJKsans{Noto Sans CJK TC}\def\CJKsansbold{Noto Sans CJK TC Bold}}
+  {\def\CJKserif{PMingLiU}\def\CJKserifbold{Microsoft JhengHei Bold}%
+   \def\CJKsans{Microsoft JhengHei}\def\CJKsansbold{Microsoft JhengHei Bold}}
+\IfFontExistsTF{AR PL KaitiM Big5}{\def\CJKkai{AR PL KaitiM Big5}}{\def\CJKkai{DFKai-SB}}
+\setCJKmainfont{\CJKserif}[BoldFont={\CJKserifbold},ItalicFont={\CJKkai}]
+\setCJKsansfont{\CJKsans}[BoldFont={\CJKsansbold}]
+\setCJKmonofont{\CJKsans}
 
 % ------------------------------------------------------------------ layout
 \usepackage[top=2.2cm,bottom=2.2cm,left=2.3cm,right=2.3cm,headheight=14pt]{geometry}
