@@ -4,10 +4,14 @@ This repository contains the computation code for the chemical thermodynamics fi
 The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 
 > This project originally lived in the `vle_consulting/` folder of a fork of
-> [CalebBell/thermo](https://github.com/CalebBell/thermo) (now archived as
-> `Shuruyue/thermo-fork`). It was split out with its full commit history; the code
-> does not depend on that fork. `tests/verify_scientific_correctness.py` can optionally
-> cross-check the NRTL implementation against the `thermo` package (`pip install thermo`).
+> [CalebBell/thermo](https://github.com/CalebBell/thermo) (the fork has since been removed).
+> It was split out with its full commit history; the code does not depend on that fork.
+> `tests/verify_scientific_correctness.py` can optionally cross-check the NRTL
+> implementation against the `thermo` package (`pip install thermo`).
+
+**Interactive page:** [web/ethanol-water-vle.html](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)
+— move the sliders to recompute T–x–y, the deviation from the Kamihama et al. (2012) data,
+ΔH_mix and the McCabe–Thiele column live in the browser (single self-contained file; also works offline).
 
 ## Current Capabilities
 
