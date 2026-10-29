@@ -1,7 +1,13 @@
 # Ethanol-Water VLE Final Project
 
-This folder contains the computation code for the chemical thermodynamics final project.
+This repository contains the computation code for the chemical thermodynamics final project.
 The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
+
+> This project originally lived in the `vle_consulting/` folder of a fork of
+> [CalebBell/thermo](https://github.com/CalebBell/thermo) (now archived as
+> `Shuruyue/thermo-fork`). It was split out with its full commit history; the code
+> does not depend on that fork. `tests/verify_scientific_correctness.py` can optionally
+> cross-check the NRTL implementation against the `thermo` package (`pip install thermo`).
 
 ## Current Capabilities
 
@@ -19,7 +25,7 @@ The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 ## Directory
 
 ```text
-vle_consulting/
+Ethanol-Water-VLE/
 ├── data/
 │   └── parameter_db.json
 ├── figures/
