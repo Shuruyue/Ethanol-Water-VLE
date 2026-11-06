@@ -256,7 +256,7 @@ def main() -> None:
         b21 = st.slider("b21", min_value=-1200.0, max_value=1200.0, value=float(base_system.nrtl.b21), step=1.0)
 
     if abs(a12) < 1e-12 and abs(a21) < 1e-12:
-        st.error("a12 和 a21 不可同時為 0。請調整常數項參數。")
+        st.error("a12 and a21 cannot both be 0. Please adjust the constant terms.")
         st.stop()
 
     with st.spinner("Computing equilibrium and excess-property curves..."):

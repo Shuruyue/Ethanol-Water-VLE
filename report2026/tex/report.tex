@@ -10,7 +10,7 @@
 \setsansfont{Latin Modern Sans}
 \setmonofont{Latin Modern Mono}
 \setmathfont{Latin Modern Math}
-% CJK：優先使用 Noto CJK TC + 文鼎楷書（Linux 編譯環境）；沒有時改用 Windows 內建的細明體／微軟正黑體／標楷體
+% CJK fonts: prefer Noto CJK TC + AR PL KaitiM (Linux build); otherwise fall back to the Windows fonts PMingLiU / Microsoft JhengHei / DFKai-SB
 \IfFontExistsTF{Noto Serif CJK TC}
   {\def\CJKserif{Noto Serif CJK TC}\def\CJKserifbold{Noto Serif CJK TC Black}%
    \def\CJKsans{Noto Sans CJK TC}\def\CJKsansbold{Noto Sans CJK TC Bold}}
@@ -273,7 +273,7 @@ Van Laar（對照） & $A_{12}=\nvlA\pm\nvlAse$，$A_{21}=\nvlB\pm\nvlBse$ & 本
 \end{figure}
 
 \begin{table}[H]
-\centering\small\setlength{\tabcolsep}{4.5pt}% 縮小欄距，讓表格放進版面寬度
+\centering\small\setlength{\tabcolsep}{4.5pt}% narrower column gaps so the table fits the text width
 \caption{模型對 21 點實驗數據的偏差（101.3\,kPa；完整統計與殘差圖見附錄 B）。}\label{tab:stats}
 \begin{tabular}{@{}lccccc@{}}
 \toprule
@@ -456,7 +456,7 @@ D=100\,\frac{\bigl|\int_0^1\ln(\gamma_1/\gamma_2)\,\dd x_1\bigr|}{\int_0^1|\ln(\
 $D-J<10$，數據通過一致性檢定。
 
 \begin{table}[H]
-\centering\small\setlength{\tabcolsep}{4.5pt}% 縮小欄距，讓表格放進版面寬度
+\centering\small\setlength{\tabcolsep}{4.5pt}% narrower column gaps so the table fits the text width
 \caption{完整偏差統計（101.3\,kPa，21 點）。}\label{tab:statsfull}
 \begin{tabular}{@{}lcccccc@{}}
 \toprule

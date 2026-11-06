@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="zh-Hant">
+<html lang="en">
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Ethanol–Water Interactive VLE</title>
@@ -162,93 +162,93 @@ textarea.copybox { width: 100%; height: 140px; font-family: var(--font-num); fon
 
 <div class="app">
   <header class="head">
-    <h1><span class="en">Ethanol–Water · NRTL · 101.325 kPa</span>乙醇–水 互動式汽液平衡</h1>
-    <p class="sys">拉動左側參數，所有相圖、過剩性質與蒸餾塔設計即時重算。模型：<b>修正 Raoult 定律 + NRTL</b>；驗證數據：<b>Kamihama 等（2012）21 點</b>。</p>
+    <h1><span class="en">Ethanol–Water · NRTL · 101.325 kPa</span>Ethanol–water interactive vapour–liquid equilibrium</h1>
+    <p class="sys">Move the parameters on the left and every phase diagram, excess property and column design is recomputed instantly. Model: <b>modified Raoult's law + NRTL</b>; validation data: <b>Kamihama et al. (2012), 21 points</b>.</p>
   </header>
 
-  <section class="readouts" aria-label="即時結果">
-    <div class="ro"><div class="k">共沸點（NRTL，目前壓力）</div><div class="v" id="roAz">—</div><div class="s" id="roAzS"></div></div>
-    <div class="ro"><div class="k">對實驗數據的偏差（101.3 kPa，21 點）</div><div class="v" id="roFit">—</div><div class="s" id="roFitS"></div></div>
-    <div class="ro"><div class="k">混合熱 ΔH<sub>mix</sub>（T<sub>ref</sub>）</div><div class="v" id="roHE">—</div><div class="s" id="roHES"></div></div>
-    <div class="ro"><div class="k">最小迴流比 R<sub>min</sub>（蒸餾分頁的規格）</div><div class="v" id="roRmin">—</div><div class="s" id="roRminS"></div></div>
+  <section class="readouts" aria-label="Live results">
+    <div class="ro"><div class="k">Azeotrope (NRTL, current pressure)</div><div class="v" id="roAz">—</div><div class="s" id="roAzS"></div></div>
+    <div class="ro"><div class="k">Deviation from experiment (101.3 kPa, 21 points)</div><div class="v" id="roFit">—</div><div class="s" id="roFitS"></div></div>
+    <div class="ro"><div class="k">Heat of mixing ΔH<sub>mix</sub> (T<sub>ref</sub>)</div><div class="v" id="roHE">—</div><div class="s" id="roHES"></div></div>
+    <div class="ro"><div class="k">Minimum reflux R<sub>min</sub> (specification on the column tab)</div><div class="v" id="roRmin">—</div><div class="s" id="roRminS"></div></div>
   </section>
   <div class="alert" id="alert" hidden></div>
 
   <div class="layout">
-    <aside class="rail" aria-label="參數">
+    <aside class="rail" aria-label="Parameters">
       <div class="grp">
-        <h2>參數組</h2>
+        <h2>Parameter set</h2>
         <div class="presets" id="presets">
-          <button class="preset" type="button" data-preset="lit" aria-pressed="false">Aspen/DDB 文獻值<small>報告採用；a 與 b 皆有</small></button>
-          <button class="preset" type="button" data-preset="fit" aria-pressed="false">本研究迴歸<small>只迴歸 b<sub>ij</sub>，a<sub>ij</sub> = 0</small></button>
-          <button class="preset" type="button" data-preset="course" aria-pressed="false">課程範例程式<small>b<sub>ij</sub> = 0 的示意值</small></button>
+          <button class="preset" type="button" data-preset="lit" aria-pressed="false">Aspen/DDB literature<small>used in the report; both a and b</small></button>
+          <button class="preset" type="button" data-preset="fit" aria-pressed="false">This study's fit<small>b<sub>ij</sub> only, a<sub>ij</sub> = 0</small></button>
+          <button class="preset" type="button" data-preset="course" aria-pressed="false">Course example code<small>illustrative values, b<sub>ij</sub> = 0</small></button>
         </div>
       </div>
 
       <div class="grp">
-        <h2>操作條件</h2>
+        <h2>Operating conditions</h2>
         <div class="ctl">
-          <div class="row"><label for="nP">壓力 P<span class="u">kPa</span></label><input type="number" id="nP" min="10" max="300" step="0.1"></div>
-          <input type="range" id="rP" min="0" max="1000" step="1" aria-label="壓力">
+          <div class="row"><label for="nP">Pressure P<span class="u">kPa</span></label><input type="number" id="nP" min="10" max="300" step="0.1"></div>
+          <input type="range" id="rP" min="0" max="1000" step="1" aria-label="Pressure">
           <div class="chips"><button class="chip" type="button" data-kpa="20">20 kPa</button><button class="chip" type="button" data-kpa="101.325">1 atm</button><button class="chip" type="button" data-kpa="300">300 kPa</button></div>
         </div>
         <div class="ctl">
-          <div class="row"><label for="nT">參考溫度 T<sub>ref</sub><span class="u">°C</span></label><input type="number" id="nT" min="20" max="110" step="0.1"></div>
-          <input type="range" id="rT" min="20" max="110" step="0.1" aria-label="參考溫度">
+          <div class="row"><label for="nT">Reference temperature T<sub>ref</sub><span class="u">°C</span></label><input type="number" id="nT" min="20" max="110" step="0.1"></div>
+          <input type="range" id="rT" min="20" max="110" step="0.1" aria-label="Reference temperature">
           <div class="chips"><button class="chip" type="button" data-tc="25">25 °C</button><button class="chip" type="button" data-tc="78.2">78.2 °C</button></div>
         </div>
         <div class="ctl">
-          <div class="row"><span style="font-size:.86rem">飽和蒸氣壓</span></div>
-          <div class="seg" id="segPsat" role="group" aria-label="飽和蒸氣壓來源">
-            <button type="button" data-v="report" aria-pressed="true">NIST + IAPWS<br><span style="font-size:.7rem;color:var(--muted)">報告版</span></button>
-            <button type="button" data-v="repo" aria-pressed="false">Antoine mmHg<br><span style="font-size:.7rem;color:var(--muted)">repo 版</span></button>
+          <div class="row"><span style="font-size:.86rem">Saturation vapour pressure</span></div>
+          <div class="seg" id="segPsat" role="group" aria-label="Vapour-pressure source">
+            <button type="button" data-v="report" aria-pressed="true">NIST + IAPWS<br><span style="font-size:.7rem;color:var(--muted)">report version</span></button>
+            <button type="button" data-v="repo" aria-pressed="false">Antoine mmHg<br><span style="font-size:.7rem;color:var(--muted)">repo version</span></button>
           </div>
         </div>
       </div>
 
       <div class="grp" id="nrtlGrp">
-        <h2>NRTL 參數 · τ<sub>ij</sub> = a<sub>ij</sub> + b<sub>ij</sub>/T</h2>
+        <h2>NRTL parameters · τ<sub>ij</sub> = a<sub>ij</sub> + b<sub>ij</sub>/T</h2>
       </div>
 
       <div class="grp">
-        <h2>T<sub>ref</sub> 下的模型量</h2>
+        <h2>Model quantities at T<sub>ref</sub></h2>
         <div class="derived" id="derived"></div>
       </div>
 
       <div class="grp">
-        <h2>顯示</h2>
+        <h2>Show</h2>
         <div class="checks">
-          <label><input type="checkbox" id="cIdeal" checked> 理想溶液（Raoult）</label>
-          <label><input type="checkbox" id="cVL" checked> Van Laar（本研究迴歸）</label>
-          <label><input type="checkbox" id="cExp" checked> 實驗數據點</label>
+          <label><input type="checkbox" id="cIdeal" checked> Ideal solution (Raoult)</label>
+          <label><input type="checkbox" id="cVL" checked> Van Laar (this study's fit)</label>
+          <label><input type="checkbox" id="cExp" checked> Experimental points</label>
         </div>
       </div>
     </aside>
 
     <main>
-      <div class="tabs" role="tablist" aria-label="圖表分頁">
-        <button class="tab" role="tab" id="t-vle" aria-controls="p-vle" aria-selected="true">相平衡</button>
-        <button class="tab" role="tab" id="t-excess" aria-controls="p-excess" aria-selected="false">過剩性質與混合熱</button>
-        <button class="tab" role="tab" id="t-column" aria-controls="p-column" aria-selected="false">蒸餾塔（McCabe–Thiele）</button>
-        <button class="tab" role="tab" id="t-data" aria-controls="p-data" aria-selected="false">數據表</button>
+      <div class="tabs" role="tablist" aria-label="Chart tabs">
+        <button class="tab" role="tab" id="t-vle" aria-controls="p-vle" aria-selected="true">Phase equilibrium</button>
+        <button class="tab" role="tab" id="t-excess" aria-controls="p-excess" aria-selected="false">Excess properties and heat of mixing</button>
+        <button class="tab" role="tab" id="t-column" aria-controls="p-column" aria-selected="false">Distillation column (McCabe–Thiele)</button>
+        <button class="tab" role="tab" id="t-data" aria-controls="p-data" aria-selected="false">Data tables</button>
       </div>
 
       <section class="panel" id="p-vle" role="tabpanel" aria-labelledby="t-vle">
-        <div class="card"><h3>T–x–y 相圖</h3><div class="sub" id="txySub"></div><div class="chart" id="cTxy"></div></div>
+        <div class="card"><h3>T–x–y diagram</h3><div class="sub" id="txySub"></div><div class="chart" id="cTxy"></div></div>
         <div class="grid3">
-          <div class="card"><h3>y–x 相圖</h3><div class="sub">對角線以上可分離；與對角線相交處即共沸點</div><div class="chart" id="cYx"></div></div>
-          <div class="card"><h3>共沸點附近放大</h3><div class="sub">x<sub>1</sub> = 0.65–1；誤差棒為實驗擴展不確定度</div><div class="chart" id="cZoom"></div></div>
-          <div class="card"><h3>相對揮發度 α<sub>12</sub></h3><div class="sub">沿泡點線，對數座標；α<sub>12</sub> = 1 即無法再分離</div><div class="chart" id="cAlpha"></div></div>
+          <div class="card"><h3>y–x diagram</h3><div class="sub">Separation is possible above the diagonal; where the curve crosses the diagonal is the azeotrope</div><div class="chart" id="cYx"></div></div>
+          <div class="card"><h3>Close-up near the azeotrope</h3><div class="sub">x<sub>1</sub> = 0.65–1; error bars are the expanded experimental uncertainty</div><div class="chart" id="cZoom"></div></div>
+          <div class="card"><h3>Relative volatility α<sub>12</sub></h3><div class="sub">Along the bubble line, log scale; at α<sub>12</sub> = 1 no further separation is possible</div><div class="chart" id="cAlpha"></div></div>
         </div>
       </section>
 
       <section class="panel" id="p-excess" role="tabpanel" aria-labelledby="t-excess" hidden>
         <div class="answer" id="answer"></div>
-        <div class="card"><h3 id="exTitle">過剩性質</h3><div class="sub">等溫計算；ΔH<sub>mix</sub> = H<sup>E</sup>，TS<sup>E</sup> = H<sup>E</sup> − G<sup>E</sup></div><div class="chart" id="cEx"></div></div>
+        <div class="card"><h3 id="exTitle">Excess properties</h3><div class="sub">Isothermal; ΔH<sub>mix</sub> = H<sup>E</sup>, TS<sup>E</sup> = H<sup>E</sup> − G<sup>E</sup></div><div class="chart" id="cEx"></div></div>
         <div class="grid3">
-          <div class="card"><h3>活性係數</h3><div class="sub" id="gamSub"></div><div class="chart" id="cGam"></div></div>
-          <div class="card"><h3>ΔH<sub>mix</sub> 隨溫度的變化</h3><div class="sub">紅色菱形為 25 °C 量熱實驗極小值</div><div class="chart" id="cHT"></div></div>
-          <div class="card"><h3>過剩熱容 C<sub>p</sub><sup>E</sup></h3><div class="sub" id="cpSub"></div><div class="chart" id="cCp"></div></div>
+          <div class="card"><h3>Activity coefficients</h3><div class="sub" id="gamSub"></div><div class="chart" id="cGam"></div></div>
+          <div class="card"><h3>ΔH<sub>mix</sub> versus temperature</h3><div class="sub">Red diamond: calorimetric minimum at 25 °C</div><div class="chart" id="cHT"></div></div>
+          <div class="card"><h3>Excess heat capacity C<sub>p</sub><sup>E</sup></h3><div class="sub" id="cpSub"></div><div class="chart" id="cCp"></div></div>
         </div>
       </section>
 
@@ -256,28 +256,28 @@ textarea.copybox { width: 100%; height: 140px; font-family: var(--font-num); fon
         <div class="colin" id="colin"></div>
         <div class="answer" id="colAnswer"></div>
         <div class="grid2">
-          <div class="card"><h3>NRTL 相平衡設計</h3><div class="sub" id="mtSubN"></div><div class="chart" id="cMtN"></div></div>
-          <div class="card"><h3>理想溶液設計（原設計）</h3><div class="sub" id="mtSubI"></div><div class="chart" id="cMtI"></div></div>
+          <div class="card"><h3>Design with NRTL equilibrium</h3><div class="sub" id="mtSubN"></div><div class="chart" id="cMtN"></div></div>
+          <div class="card"><h3>Ideal-solution design (original design)</h3><div class="sub" id="mtSubI"></div><div class="chart" id="cMtI"></div></div>
         </div>
-        <div class="tablewrap"><table id="colTable" aria-label="設計比較"></table></div>
+        <div class="tablewrap"><table id="colTable" aria-label="Design comparison"></table></div>
       </section>
 
       <section class="panel" id="p-data" role="tabpanel" aria-labelledby="t-data" hidden>
-        <div class="toolbar"><button class="btn" type="button" id="copyCsv">複製目前數據（CSV）</button><span class="msg" id="copyMsg">包含目前壓力下的 T–x–y 與 T<sub>ref</sub> 下的過剩性質，可貼到 Excel</span></div>
-        <textarea class="copybox" id="copyBox" hidden readonly aria-label="CSV 數據"></textarea>
+        <div class="toolbar"><button class="btn" type="button" id="copyCsv">Copy current data (CSV)</button><span class="msg" id="copyMsg">T–x–y at the current pressure and excess properties at T<sub>ref</sub>; pastes into Excel</span></div>
+        <textarea class="copybox" id="copyBox" hidden readonly aria-label="CSV data"></textarea>
         <div class="tablewrap"><table id="dataTable"></table></div>
         <div class="tablewrap"><table id="expTable"></table></div>
         <div class="card src">
-          <h3>參數與數據來源</h3>
-          <p><b>NRTL（Aspen/DDB）</b>：a<sub>12</sub> = −0.8009，b<sub>12</sub> = 246.18 K，a<sub>21</sub> = 3.4578，b<sub>21</sub> = −586.0809 K，α = 0.3。Aspen Plus 資料庫以 Dortmund Data Bank 迴歸之值，表列於 Beneke 等，<i>Understanding Distillation Using Column Profile Maps</i>（Wiley, 2013）附錄 B。</p>
-          <p><b>本研究迴歸</b>：a<sub>ij</sub> = 0，b<sub>12</sub> = −37.54 K，b<sub>21</sub> = 640.64 K（對 Kamihama 等數據加權最小平方）。<b>Van Laar</b>：A<sub>12</sub> = 1.700，A<sub>21</sub> = 0.953（同上迴歸）。<b>課程範例</b>：課程講義程式中標示為示意用的值。</p>
-          <p><b>蒸氣壓</b>：報告版＝乙醇 NIST WebBook（Ambrose &amp; Sprake 1970）、水 IAPWS-IF97 飽和線；repo 版＝常見 mmHg／°C Antoine 表列值（乙醇適用至 80 °C）。</p>
-          <p><b>實驗數據</b>：N. Kamihama 等，<i>J. Chem. Eng. Data</i> 57 (2012) 339–344，經 NIST TRC ThermoML 收錄；ΔH<sub>mix</sub> 25 °C 極小值：Larkin (1975)、Ott 等 (1986)。</p>
+          <h3>Parameters and data sources</h3>
+          <p><b>NRTL (Aspen/DDB)</b>: a<sub>12</sub> = −0.8009, b<sub>12</sub> = 246.18 K, a<sub>21</sub> = 3.4578, b<sub>21</sub> = −586.0809 K, α = 0.3. Aspen Plus databank values regressed from the Dortmund Data Bank, tabulated in Beneke et al., <i>Understanding Distillation Using Column Profile Maps</i> (Wiley, 2013), Appendix B.</p>
+          <p><b>This study's fit</b>: a<sub>ij</sub> = 0, b<sub>12</sub> = −37.54 K, b<sub>21</sub> = 640.64 K (weighted least squares on the Kamihama et al. data). <b>Van Laar</b>: A<sub>12</sub> = 1.700, A<sub>21</sub> = 0.953 (same fit). <b>Course example</b>: values marked as illustrative in the course handout code.</p>
+          <p><b>Vapour pressure</b>: report version = ethanol from the NIST WebBook (Ambrose &amp; Sprake 1970), water from the IAPWS-IF97 saturation line; repo version = common tabulated mmHg / °C Antoine constants (valid for ethanol up to 80 °C).</p>
+          <p><b>Experimental data</b>: N. Kamihama et al., <i>J. Chem. Eng. Data</i> 57 (2012) 339–344, via NIST TRC ThermoML; ΔH<sub>mix</sub> minimum at 25 °C: Larkin (1975), Ott et al. (1986).</p>
         </div>
       </section>
     </main>
   </div>
-  <p class="foot">計算：每個液相組成以 Illinois 法解泡點溫度；過剩焓由 Gibbs–Helmholtz 關係對 G<sup>E</sup>/RT 數值微分；McCabe–Thiele 採恆莫耳溢流、飽和液體進料、全凝器，進料 100 kmol/h，再沸器負荷以水的汽化熱 40.65 kJ/mol 估算。程式與報告：github.com/Shuruyue/Ethanol-Water-VLE（report-2026-revision）。</p>
+  <p class="foot">Method: the bubble temperature of each liquid composition is solved with the Illinois method; the excess enthalpy comes from numerical differentiation of G<sup>E</sup>/RT (Gibbs–Helmholtz); McCabe–Thiele assumes constant molar overflow, a saturated-liquid feed of 100 kmol/h and a total condenser; the reboiler duty uses the heat of vaporization of water, 40.65 kJ/mol. Code and report: github.com/Shuruyue/Ethanol-Water-VLE.</p>
 </div>
 
 <script>
@@ -610,9 +610,9 @@ for (const [id, k] of [["cIdeal", "ideal"], ["cVL", "vl"], ["cExp", "exp"]]) $(i
 
 // column inputs
 const COLIN = [
-  { k: "xF", lab: "進料 x_{F}", min: 0.02, max: 0.5, step: 0.01 },
-  { k: "xD", lab: "餾出 x_{D}", min: 0.5, max: 0.98, step: 0.005 },
-  { k: "xB", lab: "塔底 x_{B}", min: 0.0005, max: 0.02, step: 0.0005 },
+  { k: "xF", lab: "Feed x_{F}", min: 0.02, max: 0.5, step: 0.01 },
+  { k: "xD", lab: "Distillate x_{D}", min: 0.5, max: 0.98, step: 0.005 },
+  { k: "xB", lab: "Bottoms x_{B}", min: 0.0005, max: 0.02, step: 0.0005 },
   { k: "rr", lab: "R / R_{min}", min: 1.05, max: 3, step: 0.05 },
 ];
 for (const p of COLIN) {
@@ -690,22 +690,22 @@ function setRich(el, html) { el.textContent = ""; richHTML(html, el); }
 function renderReadouts() {
   const az = M.az;
   if (az) { $("roAz").innerHTML = `${f(az.x, 4)} <small>· ${f(az.T - K, 2)} °C · ${f(wt(az.x), 1)} wt%</small>`; }
-  else $("roAz").textContent = "無共沸點";
+  else $("roAz").textContent = "No azeotrope";
   const nearAtm = Math.abs(M.P - P_EXP) < 0.6;
-  $("roAzS").textContent = az ? (az.kind === "max" ? "最高沸點共沸物" : "最低沸點共沸物") + (nearAtm ? `；實驗 ${X_AZ_EXP.toFixed(4)} · ${(T_AZ_EXP - K).toFixed(2)} °C` : `；P = ${M.P} kPa`) : "此參數組在目前壓力下不形成共沸物";
+  $("roAzS").textContent = az ? (az.kind === "max" ? "Maximum-boiling azeotrope" : "Minimum-boiling azeotrope") + (nearAtm ? `; experiment ${X_AZ_EXP.toFixed(4)} · ${(T_AZ_EXP - K).toFixed(2)} °C` : `; P = ${M.P} kPa`) : "No azeotrope with this parameter set at the current pressure";
   $("roFit").innerHTML = `AAD<sub>T</sub> ${f(M.fN.aT, 3)} K <small>· AAD<sub>y</sub> ${f(M.fN.ay, 4)}</small>`;
   const all = M.fN.inU === 21;
-  $("roFitS").innerHTML = `<span class="pill ${all ? "good" : M.fN.inU > 15 ? "warn" : "bad"}">${M.fN.inU}/21 點在實驗誤差內</span> 理想溶液 ${f(M.fI.aT, 2)} K`;
+  $("roFitS").innerHTML = `<span class="pill ${all ? "good" : M.fN.inU > 15 ? "warn" : "bad"}">${M.fN.inU}/21 points within experimental uncertainty</span> ideal solution ${f(M.fI.aT, 2)} K`;
   const he = M.ex.map((r) => r.HE), xs = M.ex.map((r) => r.x);
   const mn = Math.min(...he), mx = Math.max(...he), xmn = xs[he.indexOf(mn)], xmx = xs[he.indexOf(mx)];
   const zero = Math.max(Math.abs(mn), Math.abs(mx)) < 1e-6;
   $("roHE").innerHTML = zero ? "≡ 0 <small>J/mol</small>" : `${f(mn, 0)} / +${f(mx, 0)} <small>J/mol</small>`;
-  $("roHES").innerHTML = zero ? "b<sub>12</sub> = b<sub>21</sub> = 0：τ 與溫度無關，模型預測不出混合熱" : `最低在 x<sub>1</sub> = ${f(xmn, 2)}（放熱），最高在 x<sub>1</sub> = ${f(xmx, 2)}；T<sub>ref</sub> = ${S.Tref} °C`;
+  $("roHES").innerHTML = zero ? "b<sub>12</sub> = b<sub>21</sub> = 0: τ does not depend on temperature, so the model predicts no heat of mixing" : `minimum at x<sub>1</sub> = ${f(xmn, 2)} (exothermic), maximum at x<sub>1</sub> = ${f(xmx, 2)}; T<sub>ref</sub> = ${S.Tref} °C`;
   const cN = M.cN, cI = M.cI;
-  $("roRmin").innerHTML = cN.rm ? `${f(cN.rm.R, 2)} <small>· 理想溶液 ${cI.rm ? f(cI.rm.R, 2) : "—"}</small>` : `不可行 <small>· 理想溶液 ${cI.rm ? f(cI.rm.R, 2) : "—"}</small>`;
-  $("roRminS").innerHTML = cN.rm ? `x<sub>F</sub> ${S.xF} → x<sub>D</sub> ${S.xD}；Q<sub>B</sub> ${f(cN.QB, 0)} kW vs 理想 ${cI.rm ? f(cI.QB, 0) : "—"} kW` : `x<sub>D</sub> = ${S.xD} 已超過共沸組成或切點，NRTL 下無法達成`;
+  $("roRmin").innerHTML = cN.rm ? `${f(cN.rm.R, 2)} <small>· ideal solution ${cI.rm ? f(cI.rm.R, 2) : "—"}</small>` : `infeasible <small>· ideal solution ${cI.rm ? f(cI.rm.R, 2) : "—"}</small>`;
+  $("roRminS").innerHTML = cN.rm ? `x<sub>F</sub> ${S.xF} → x<sub>D</sub> ${S.xD}; Q<sub>B</sub> ${f(cN.QB, 0)} kW vs ideal ${cI.rm ? f(cI.QB, 0) : "—"} kW` : `x<sub>D</sub> = ${S.xD} is beyond the azeotrope or the tangent pinch; not reachable with NRTL`;
   const al = $("alert");
-  if (M.unst) { al.hidden = false; al.textContent = `這組 NRTL 參數在 x₁ ≈ ${M.unst[0].toFixed(2)}–${M.unst[1].toFixed(2)} 預測液相不穩定（會分成兩液相），而乙醇與水實際上完全互溶；VLE 曲線在這個範圍沒有物理意義。`; }
+  if (M.unst) { al.hidden = false; al.textContent = `This NRTL parameter set predicts an unstable liquid (splitting into two liquid phases) at x₁ ≈ ${M.unst[0].toFixed(2)}–${M.unst[1].toFixed(2)}, whereas ethanol and water are fully miscible; the VLE curves have no physical meaning in this range.`; }
   else al.hidden = true;
   // derived
   const g1i = Math.exp(nrtlLn(0, M.TR, M.prm)[0]), g2i = Math.exp(nrtlLn(1, M.TR, M.prm)[1]);
@@ -717,54 +717,54 @@ function renderReadouts() {
 const tT = (v) => f(v - K, 2) + " °C";
 function renderVLE() {
   const { nr, id, vl, az } = M, P = M.P, showExp = S.exp && Math.abs(P - P_EXP) < 0.6;
-  $("txySub").textContent = `P = ${P} kPa；實線為泡點（液相），虛線為露點（汽相）` + (S.exp && !showExp ? "；實驗點只在 P ≈ 101.3 kPa 顯示" : "");
+  $("txySub").textContent = `P = ${P} kPa; solid lines: bubble point (liquid), dashed: dew point (vapour)` + (S.exp && !showExp ? "; experimental points are shown only at P ≈ 101.3 kPa" : "");
   const ser = [];
-  if (S.ideal) { ser.push({ name: "理想溶液 泡點", tipName: "理想 泡點", color: "var(--ideal)", width: 1.5, pts: id.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C", legend: "理想溶液", }); ser.push({ name: "理想溶液 露點", tipName: "理想 露點", noLegend: true, color: "var(--ideal)", width: 1.5, dash: "dash", pts: id.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); }
-  if (S.vl) { ser.push({ name: "Van Laar 泡點", tipName: "Van Laar 泡點", legend: "Van Laar", color: "var(--s2)", width: 1.6, pts: vl.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); ser.push({ name: "Van Laar 露點", tipName: "Van Laar 露點", noLegend: true, color: "var(--s2)", width: 1.6, dash: "dash", pts: vl.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); }
-  ser.push({ name: "NRTL 泡點", tipName: "NRTL 泡點", legend: "NRTL", color: "var(--s1)", width: 2.4, pts: nr.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C" });
-  ser.push({ name: "NRTL 露點", tipName: "NRTL 露點", noLegend: true, color: "var(--s1)", width: 2.4, dash: "dash", pts: nr.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" });
+  if (S.ideal) { ser.push({ name: "Ideal solution, bubble", tipName: "Ideal, bubble", color: "var(--ideal)", width: 1.5, pts: id.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C", legend: "Ideal solution", }); ser.push({ name: "Ideal solution, dew", tipName: "Ideal, dew", noLegend: true, color: "var(--ideal)", width: 1.5, dash: "dash", pts: id.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); }
+  if (S.vl) { ser.push({ name: "Van Laar bubble", tipName: "Van Laar bubble", legend: "Van Laar", color: "var(--s2)", width: 1.6, pts: vl.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); ser.push({ name: "Van Laar dew", tipName: "Van Laar dew", noLegend: true, color: "var(--s2)", width: 1.6, dash: "dash", pts: vl.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" }); }
+  ser.push({ name: "NRTL bubble", tipName: "NRTL bubble", legend: "NRTL", color: "var(--s1)", width: 2.4, pts: nr.map((r) => [r.x, r.T - K]), fmt: (v) => f(v, 2) + " °C" });
+  ser.push({ name: "NRTL dew", tipName: "NRTL dew", noLegend: true, color: "var(--s1)", width: 2.4, dash: "dash", pts: nr.map((r) => [r.y, r.T - K]), fmt: (v) => f(v, 2) + " °C" });
   if (showExp) {
-    ser.push({ kind: "points", name: "實驗 x_{1}（液相）", tipName: "實驗 液相", color: "var(--exp)", hollow: true, shape: "circle", err: true, pts: EXP.map((e) => [e.x, e.T - K, e.uT]), fmtPt: (p) => `x₁ ${p[0].toFixed(3)} · ${p[1].toFixed(2)} °C` });
-    ser.push({ kind: "points", name: "實驗 y_{1}（汽相）", tipName: "實驗 汽相", color: "var(--exp)", shape: "tri", pts: EXP.map((e) => [e.y, e.T - K]), fmtPt: (p) => `y₁ ${p[0].toFixed(3)} · ${p[1].toFixed(2)} °C` });
+    ser.push({ kind: "points", name: "Experiment x_{1} (liquid)", tipName: "Experiment, liquid", color: "var(--exp)", hollow: true, shape: "circle", err: true, pts: EXP.map((e) => [e.x, e.T - K, e.uT]), fmtPt: (p) => `x₁ ${p[0].toFixed(3)} · ${p[1].toFixed(2)} °C` });
+    ser.push({ kind: "points", name: "Experiment y_{1} (vapour)", tipName: "Experiment, vapour", color: "var(--exp)", shape: "tri", pts: EXP.map((e) => [e.y, e.T - K]), fmtPt: (p) => `y₁ ${p[0].toFixed(3)} · ${p[1].toFixed(2)} °C` });
   }
   const allT = [];
   for (const s of ser) for (const p of s.pts) if (isFinite(p[1])) allT.push(p[1]);
   const lo = Math.min(...allT), hi = Math.max(...allT), pad = Math.max(0.6, (hi - lo) * 0.04);
-  const marks = az ? [{ kind: "point", x: az.x, y: az.T - K, color: "var(--crit)", shape: "diamond", label: `共沸 ${az.x.toFixed(3)}, ${(az.T - K).toFixed(2)} °C`, legend: "NRTL 共沸點", dy: -10 }] : [];
-  CH.txy.set({ aria: "T-x-y 相圖", x: { min: 0, max: 1, label: "乙醇莫耳分率 x_{1} 或 y_{1}" }, y: { min: lo - pad, max: hi + pad, label: "溫度 T (°C)" }, series: ser, marks,
+  const marks = az ? [{ kind: "point", x: az.x, y: az.T - K, color: "var(--crit)", shape: "diamond", label: `azeotrope ${az.x.toFixed(3)}, ${(az.T - K).toFixed(2)} °C`, legend: "NRTL azeotrope", dy: -10 }] : [];
+  CH.txy.set({ aria: "T-x-y diagram", x: { min: 0, max: 1, label: "Ethanol mole fraction x_{1} or y_{1}" }, y: { min: lo - pad, max: hi + pad, label: "Temperature T (°C)" }, series: ser, marks,
     tipTitle: (x) => `x_{1} = y_{1} = ${x.toFixed(3)}` });
   // y-x
   const sy = [];
-  if (S.ideal) sy.push({ name: "理想溶液", color: "var(--ideal)", width: 1.5, pts: id.map((r) => [r.x, r.y]) });
+  if (S.ideal) sy.push({ name: "Ideal solution", color: "var(--ideal)", width: 1.5, pts: id.map((r) => [r.x, r.y]) });
   if (S.vl) sy.push({ name: "Van Laar", color: "var(--s2)", width: 1.6, pts: vl.map((r) => [r.x, r.y]) });
   sy.push({ name: "NRTL", color: "var(--s1)", width: 2.4, pts: nr.map((r) => [r.x, r.y]) });
-  if (showExp) sy.push({ kind: "points", name: "實驗", color: "var(--exp)", hollow: true, err: true, pts: EXP.map((e) => [e.x, e.y, e.uy]), fmtPt: (p) => `x₁ ${p[0].toFixed(3)} · y₁ ${p[1].toFixed(3)}` });
-  CH.yx.set({ aria: "y-x 相圖", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: 0, max: 1, label: "y_{1}" }, series: sy,
+  if (showExp) sy.push({ kind: "points", name: "Experiment", color: "var(--exp)", hollow: true, err: true, pts: EXP.map((e) => [e.x, e.y, e.uy]), fmtPt: (p) => `x₁ ${p[0].toFixed(3)} · y₁ ${p[1].toFixed(3)}` });
+  CH.yx.set({ aria: "y-x diagram", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: 0, max: 1, label: "y_{1}" }, series: sy,
     marks: [{ kind: "seg", a: [0, 0], b: [1, 1], color: "var(--axis)", width: 1 }].concat(az ? [{ kind: "point", x: az.x, y: az.x, color: "var(--crit)", shape: "diamond" }] : []) });
   // zoom
   const zs = ser.filter((s) => s.kind !== "points" || true);
   const inZ = [];
-  for (const s of zs) for (const p of s.pts) if (p[0] >= 0.65 && isFinite(p[1]) && (s.name || "").indexOf("理想") < 0) inZ.push(p[1]);
+  for (const s of zs) for (const p of s.pts) if (p[0] >= 0.65 && isFinite(p[1]) && (s.name || "").indexOf("Ideal") < 0) inZ.push(p[1]);
   const zlo = Math.min(...inZ), zhi = Math.min(Math.max(...inZ), zlo + 4), zp = Math.max(0.05, (zhi - zlo) * 0.08);
-  CH.zoom.set({ aria: "共沸點附近放大", x: { min: 0.65, max: 1, label: "x_{1} 或 y_{1}" }, y: { min: zlo - zp, max: zhi + zp, label: "T (°C)" },
+  CH.zoom.set({ aria: "Close-up near the azeotrope", x: { min: 0.65, max: 1, label: "x_{1} or y_{1}" }, y: { min: zlo - zp, max: zhi + zp, label: "T (°C)" },
     series: zs.map((s) => Object.assign({}, s, { sorted: null, noLegend: false, name: s.noLegend ? "" : s.name })), marks: az ? [{ kind: "point", x: az.x, y: az.T - K, color: "var(--crit)", shape: "diamond" }] : [],
     tipTitle: (x) => `x_{1} = y_{1} = ${x.toFixed(3)}` });
   CH.zoom.leg.textContent = "";
   // alpha along bubble line
   const al = (rows) => rows.filter((r) => r.x > 0 && r.x < 1 && isFinite(r.y)).map((r) => [r.x, (r.y / r.x) / ((1 - r.y) / (1 - r.x))]);
   const sa = [];
-  if (S.ideal) sa.push({ name: "理想溶液", color: "var(--ideal)", width: 1.5, pts: al(id) });
+  if (S.ideal) sa.push({ name: "Ideal solution", color: "var(--ideal)", width: 1.5, pts: al(id) });
   if (S.vl) sa.push({ name: "Van Laar", color: "var(--s2)", width: 1.6, pts: al(vl) });
   sa.push({ name: "NRTL", color: "var(--s1)", width: 2.4, pts: al(nr) });
-  if (showExp) sa.push({ kind: "points", name: "實驗", color: "var(--exp)", hollow: true, pts: EXP.map((e) => [e.x, (e.y / e.x) / ((1 - e.y) / (1 - e.x))]), fmtPt: (p) => `α₁₂ ${p[1].toFixed(2)}` });
+  if (showExp) sa.push({ kind: "points", name: "Experiment", color: "var(--exp)", hollow: true, pts: EXP.map((e) => [e.x, (e.y / e.x) / ((1 - e.y) / (1 - e.x))]), fmtPt: (p) => `α₁₂ ${p[1].toFixed(2)}` });
   const av = []; for (const s of sa) for (const p of s.pts) if (p[1] > 0 && isFinite(p[1])) av.push(p[1]);
   const amin = Math.max(0.2, Math.min(...av) * 0.85), amax = Math.min(200, Math.max(...av) * 1.15);
-  CH.alpha.set({ aria: "相對揮發度", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: amin, max: amax, log: true, label: "α_{12}" }, series: sa,
+  CH.alpha.set({ aria: "Relative volatility", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: amin, max: amax, log: true, label: "α_{12}" }, series: sa,
     marks: [{ kind: "hline", at: 1, color: "var(--crit)", dash: "dot", label: "α_{12} = 1" }] });
 }
 function renderExcess() {
   const ex = M.ex, Tc = S.Tref;
-  $("exTitle").textContent = `過剩性質，T = ${Tc} °C`;
+  $("exTitle").textContent = `Excess properties, T = ${Tc} °C`;
   const se = [
     { name: "G^{E}", color: "var(--s1)", width: 2.4, pts: ex.map((r) => [r.x, r.GE]), fmt: (v) => f(v, 0) + " J/mol" },
     { name: "ΔH_{mix} = H^{E}", tipName: "ΔH_{mix}", color: "var(--s2)", width: 2.4, pts: ex.map((r) => [r.x, r.HE]), fmt: (v) => f(v, 0) + " J/mol" },
@@ -774,29 +774,29 @@ function renderExcess() {
   const near25 = Math.abs(Tc - 25) <= 5;
   if (near25) vals.push(HE25.v);
   const lo = Math.min(0, ...vals), hi = Math.max(0, ...vals), pad = (hi - lo) * 0.06 || 50;
-  CH.ex.set({ aria: "過剩性質", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: lo - pad, max: hi + pad, label: "J/mol" }, series: se,
-    marks: near25 ? [{ kind: "point", x: HE25.x, y: HE25.v, color: "var(--crit)", shape: "diamond", label: "25 °C 實驗 ΔH_{mix} 極小", legend: "25 °C 量熱實驗" }] : [] });
+  CH.ex.set({ aria: "Excess properties", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: lo - pad, max: hi + pad, label: "J/mol" }, series: se,
+    marks: near25 ? [{ kind: "point", x: HE25.x, y: HE25.v, color: "var(--crit)", shape: "diamond", label: "25 °C experimental ΔH_{mix} minimum", legend: "25 °C calorimetry" }] : [] });
   // gamma
-  $("gamSub").textContent = `T = ${Tc} °C；γ₁ 為乙醇、γ₂ 為水`;
-  const sg = [{ name: "γ_{1}（乙醇）", tipName: "γ_{1}", color: "var(--s1)", width: 2.4, pts: ex.map((r) => [r.x, r.g1]), fmt: (v) => f(v, 3) },
-              { name: "γ_{2}（水）", tipName: "γ_{2}", color: "var(--s2)", width: 2.4, pts: ex.map((r) => [r.x, r.g2]), fmt: (v) => f(v, 3) }];
+  $("gamSub").textContent = `T = ${Tc} °C; γ₁ ethanol, γ₂ water`;
+  const sg = [{ name: "γ_{1} (ethanol)", tipName: "γ_{1}", color: "var(--s1)", width: 2.4, pts: ex.map((r) => [r.x, r.g1]), fmt: (v) => f(v, 3) },
+              { name: "γ_{2} (water)", tipName: "γ_{2}", color: "var(--s2)", width: 2.4, pts: ex.map((r) => [r.x, r.g2]), fmt: (v) => f(v, 3) }];
   const gv = sg.flatMap((s) => s.pts.map((p) => p[1])).filter(isFinite);
   const gmax = Math.min(60, Math.max(...gv)), gmin = Math.min(...gv);
-  CH.gam.set({ aria: "活性係數", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: Math.min(1, gmin) - 0.05 * (gmax - gmin), max: gmax + 0.06 * (gmax - Math.min(1, gmin)), label: "γ_{i}" }, series: sg,
-    marks: [{ kind: "hline", at: 1, color: "var(--muted)", dash: "dot", label: "理想溶液 γ = 1" }] });
+  CH.gam.set({ aria: "Activity coefficients", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: Math.min(1, gmin) - 0.05 * (gmax - gmin), max: gmax + 0.06 * (gmax - Math.min(1, gmin)), label: "γ_{i}" }, series: sg,
+    marks: [{ kind: "hline", at: 1, color: "var(--muted)", dash: "dot", label: "ideal solution γ = 1" }] });
   // H^E family
   const qs = ["var(--q1)", "var(--q2)", "var(--q3)", "var(--q4)"];
   const sh = M.hT.map((h, i) => ({ name: `${h.tc} °C`, color: qs[i], width: 2, pts: h.pts, fmt: (v) => f(v, 0) + " J/mol" }));
   const hv = sh.flatMap((s) => s.pts.map((p) => p[1])).concat([HE25.v, 0]);
   const hlo = Math.min(...hv), hhi = Math.max(...hv), hp = (hhi - hlo) * 0.06 || 40;
-  CH.ht.set({ aria: "混合熱隨溫度", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: hlo - hp, max: hhi + hp, label: "ΔH_{mix} (J/mol)" }, series: sh,
-    marks: [{ kind: "point", x: HE25.x, y: HE25.v, color: "var(--crit)", shape: "diamond", label: "實驗 25 °C", dy: 16 }] });
+  CH.ht.set({ aria: "Heat of mixing versus temperature", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: hlo - hp, max: hhi + hp, label: "ΔH_{mix} (J/mol)" }, series: sh,
+    marks: [{ kind: "point", x: HE25.x, y: HE25.v, color: "var(--crit)", shape: "diamond", label: "experiment 25 °C", dy: 16 }] });
   // Cp^E
-  setRich($("cpSub"), `T = ${Tc} °C；C_{p}^{E} = ∂H^{E}/∂T`);
+  setRich($("cpSub"), `T = ${Tc} °C; C_{p}^{E} = ∂H^{E}/∂T`);
   const sc = [{ name: "C_{p}^{E}", color: "var(--s1)", width: 2.4, pts: ex.map((r) => [r.x, r.CPE]), fmt: (v) => f(v, 2) + " J/(mol·K)" }];
   const cv = sc[0].pts.map((p) => p[1]).filter(isFinite);
   const clo = Math.min(0, ...cv), chi = Math.max(0, ...cv), cpd = (chi - clo) * 0.08 || 0.5;
-  CH.cp.set({ aria: "過剩熱容", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: clo - cpd, max: chi + cpd, label: "C_{p}^{E} (J mol^{−1} K^{−1})" }, series: sc });
+  CH.cp.set({ aria: "Excess heat capacity", x: { min: 0, max: 1, label: "x_{1}" }, y: { min: clo - cpd, max: chi + cpd, label: "C_{p}^{E} (J mol^{−1} K^{−1})" }, series: sc });
   // answer text
   const xs = ex.map((r) => r.x), he = ex.map((r) => r.HE), ge = ex.map((r) => r.GE);
   const gmx = Math.max(...ge), xg = xs[ge.indexOf(gmx)], hmn = Math.min(...he), hmx = Math.max(...he);
@@ -804,24 +804,24 @@ function renderExcess() {
   const a = $("answer"); a.textContent = "";
   const p1 = document.createElement("p"), p2 = document.createElement("p");
   const zeroH = Math.max(Math.abs(hmn), Math.abs(hmx)) < 1e-6;
-  let t1 = `在 ${Tc} °C，G^{E} ${gmx > 0 ? "> 0" : "< 0"}（極值 ${f(gmx, 0)} J/mol，x_{1} = ${f(xg, 2)}），代表${gmx > 0 ? "正偏差，對應最低沸點共沸物" : "負偏差"}。`;
+  let t1 = `At ${Tc} °C, G^{E} ${gmx > 0 ? "> 0" : "< 0"} (extremum ${f(gmx, 0)} J/mol at x_{1} = ${f(xg, 2)}), i.e. ${gmx > 0 ? "a positive deviation, consistent with a minimum-boiling azeotrope" : "a negative deviation"}.`;
   let t2;
-  if (zeroH) t2 = "ΔH_{mix} ≡ 0：這組參數的 b_{12} = b_{21} = 0，τ_{ij} 不隨溫度變化，所以 Gibbs–Helmholtz 給出的混合熱恆為零。課程範例程式畫出一條平的 ΔH_{mix} 線就是這個原因。";
-  else if (hmx <= 0) t2 = `混合全組成放熱（最低 ${f(hmn, 0)} J/mol）。`;
-  else if (hmn >= 0) t2 = `混合全組成吸熱（最高 +${f(hmx, 0)} J/mol）。量熱實驗在 25 °C 是放熱，這組參數的溫度依存性與實驗不符。`;
-  else t2 = `混合在 x_{1} < ${zs.length ? f(zs[0], 2) : "?"} 放熱（最低 ${f(hmn, 0)} J/mol），之後轉為吸熱（最高 +${f(hmx, 0)} J/mol）。|ΔH_{mix}| 不到汽化熱的 ${f(100 * Math.max(-hmn, hmx) / 40650, 2)}%，對蒸餾塔能耗可忽略，但常溫調配槽的絕熱溫升需要考慮。`;
+  if (zeroH) t2 = "ΔH_{mix} ≡ 0: this parameter set has b_{12} = b_{21} = 0, so τ_{ij} does not change with temperature and Gibbs–Helmholtz gives zero heat of mixing. That is why the course example code draws a flat ΔH_{mix} line.";
+  else if (hmx <= 0) t2 = `Mixing is exothermic over the whole composition range (minimum ${f(hmn, 0)} J/mol).`;
+  else if (hmn >= 0) t2 = `Mixing is endothermic over the whole composition range (maximum +${f(hmx, 0)} J/mol). Calorimetry at 25 °C shows exothermic mixing, so the temperature dependence of this parameter set disagrees with experiment.`;
+  else t2 = `Mixing is exothermic for x_{1} < ${zs.length ? f(zs[0], 2) : "?"} (minimum ${f(hmn, 0)} J/mol) and endothermic beyond (maximum +${f(hmx, 0)} J/mol). |ΔH_{mix}| is below ${f(100 * Math.max(-hmn, hmx) / 40650, 2)}% of the heat of vaporization: negligible for the column energy, but the adiabatic temperature rise in an ambient blending tank should be considered.`;
   richHTML(t1, p1); richHTML(t2, p2); a.append(p1, p2);
 }
 function mtSpec(tab, c, curveColor, title) {
-  const ser = [{ name: "平衡線", color: curveColor, width: 2.2, pts: tab.map((r) => [r.x, r.y]), fmt: (v) => "y* " + f(v, 3) }];
+  const ser = [{ name: "Equilibrium line", color: curveColor, width: 2.2, pts: tab.map((r) => [r.x, r.y]), fmt: (v) => "y* " + f(v, 3) }];
   const marks = [{ kind: "seg", a: [0, 0], b: [1, 1], color: "var(--axis)", width: 1 }];
   if (c.rm) {
     const D = c.sg.D, L = c.sg.L, V = c.sg.V, xD = S.xD, xF = S.xF, xB = S.xB;
     const yq = (L / V) * xF + D * xD / V;
-    ser.push({ name: "操作線", color: "var(--s2)", width: 1.6, tip: false, pts: [[xD, xD], [xF, yq]] });
+    ser.push({ name: "Operating line", color: "var(--s2)", width: 1.6, tip: false, pts: [[xD, xD], [xF, yq]] });
     ser.push({ name: "", noLegend: true, color: "var(--s2)", width: 1.6, tip: false, pts: [[xF, yq], [xB, xB]] });
     const rmy = c.rm.R / (c.rm.R + 1);
-    ser.push({ name: "R_{min} 操作線", color: "var(--muted)", width: 1.2, dash: "dash", tip: false, pts: [[xD, xD], [0, xD * (1 - rmy)]] });
+    ser.push({ name: "R_{min} operating line", color: "var(--muted)", width: 1.2, dash: "dash", tip: false, pts: [[xD, xD], [0, xD * (1 - rmy)]] });
     const d = [[xD, xD]];
     for (const st of c.sg.st) {
       d.push([st.x, st.y]);
@@ -829,30 +829,30 @@ function mtSpec(tab, c, curveColor, title) {
       d.push([st.x, Math.max(st.x, yNext)]);
     }
     d.pop();
-    ser.push({ name: "理論板", color: "var(--ink-2)", width: 1, tip: false, pts: d });
+    ser.push({ name: "Theoretical stages", color: "var(--ink-2)", width: 1, tip: false, pts: d });
     marks.push({ kind: "vline", at: xF, color: "var(--muted)", dash: "dot" });
-    marks.push({ kind: "point", x: c.rm.xp, y: c.rm.yp, color: "var(--crit)", shape: "diamond", legend: "夾點" });
+    marks.push({ kind: "point", x: c.rm.xp, y: c.rm.yp, color: "var(--crit)", shape: "diamond", legend: "Pinch" });
   }
   return { aria: title, x: { min: 0, max: 1, label: "x_{1}" }, y: { min: 0, max: 1, label: "y_{1}" }, series: ser, marks };
 }
 function renderColumn() {
   const cN = M.cN, cI = M.cI, az = M.az;
   CH.mtN.set(mtSpec(M.tabN, cN, "var(--s1)", "McCabe-Thiele NRTL"));
-  CH.mtI.set(mtSpec(M.tabI, cI, "var(--ideal)", "McCabe-Thiele 理想溶液"));
-  const sub = (c) => !c.rm ? "規格不可行（x_{D} 超過共沸組成或切點）" : `R_{min} ${f(c.rm.R, 2)}（夾點 x = ${f(c.rm.xp, 3)}）· R ${f(c.Rr, 2)} · ${c.sg.ok ? c.sg.st.length + " 板，第 " + c.sg.feed + " 板進料" : "超過 200 板仍未完成"}`;
+  CH.mtI.set(mtSpec(M.tabI, cI, "var(--ideal)", "McCabe-Thiele, ideal solution"));
+  const sub = (c) => !c.rm ? "Specification infeasible (x_{D} beyond the azeotrope or tangent pinch)" : `R_{min} ${f(c.rm.R, 2)} (pinch x = ${f(c.rm.xp, 3)}) · R ${f(c.Rr, 2)} · ${c.sg.ok ? c.sg.st.length + " stages, feed on stage " + c.sg.feed : "not finished after 200 stages"}`;
   setRich($("mtSubN"), sub(cN)); setRich($("mtSubI"), sub(cI));
   const a = $("colAnswer"); a.textContent = ""; const p = document.createElement("p");
   let t;
-  if (!cN.rm) t = `x_{D} = ${S.xD} 在 NRTL 下無法達成：${az ? `目前壓力的共沸組成是 ${f(az.x, 4)}，` : ""}操作線碰到平衡線。理想溶液模型看不到這個限制。把 x_{D} 拉低到 0.85 左右再看。`;
-  else if (cI.rm) t = `同樣的分離規格，理想溶液把再沸器負荷估成 ${f(cI.QB, 0)} kW，NRTL 只要 ${f(cN.QB, 0)} kW（${f(cI.QB / cN.QB, 2)} 倍）。理想設計的夾點在進料（x = ${f(cI.rm.xp, 3)}），NRTL 的夾點是塔頂附近的切點（x = ${f(cN.rm.xp, 3)}），所以進料板從第 ${cI.sg.feed ?? "—"} 板移到第 ${cN.sg.feed ?? "—"} 板。`;
+  if (!cN.rm) t = `x_{D} = ${S.xD} cannot be reached with NRTL: ${az ? `the azeotrope at the current pressure is at ${f(az.x, 4)}, and ` : ""}the operating line touches the equilibrium line. The ideal-solution model cannot see this limit. Try lowering x_{D} to about 0.85.`;
+  else if (cI.rm) t = `For the same separation, the ideal-solution model puts the reboiler duty at ${f(cI.QB, 0)} kW, while NRTL needs only ${f(cN.QB, 0)} kW (a factor of ${f(cI.QB / cN.QB, 2)}). The ideal design pinches at the feed (x = ${f(cI.rm.xp, 3)}), the NRTL design at a tangent pinch near the top (x = ${f(cN.rm.xp, 3)}), so the feed stage moves from ${cI.sg.feed ?? "—"} to ${cN.sg.feed ?? "—"}.`;
   else t = "";
   richHTML(t, p); a.appendChild(p);
-  const rows = [["R_{min}", (c) => c.rm ? f(c.rm.R, 3) : "—"], ["夾點位置 x", (c) => c.rm ? f(c.rm.xp, 3) : "—"], ["設計 R", (c) => c.rm ? f(c.Rr, 2) : "—"],
-    ["理論板數（含再沸器）", (c) => c.rm ? (c.sg.ok ? String(c.sg.st.length) : "> 200") : "—"], ["進料板（由塔頂數）", (c) => c.rm && c.sg.feed ? String(c.sg.feed) : "—"],
-    ["上升蒸汽量 V (kmol/h)", (c) => c.rm ? f(c.sg.V * FEED, 1) : "—"], ["再沸器負荷 Q_{B} (kW)", (c) => c.rm ? f(c.QB, 0) : "—"],
-    ["塔頂 / 塔底溫度 (°C)", (c) => c.rm && c.sg.ok ? `${f(c.sg.st[0].T - K, 1)} / ${f(c.sg.st[c.sg.st.length - 1].T - K, 1)}` : "—"]];
+  const rows = [["R_{min}", (c) => c.rm ? f(c.rm.R, 3) : "—"], ["Pinch location x", (c) => c.rm ? f(c.rm.xp, 3) : "—"], ["Design R", (c) => c.rm ? f(c.Rr, 2) : "—"],
+    ["Theoretical stages (incl. reboiler)", (c) => c.rm ? (c.sg.ok ? String(c.sg.st.length) : "> 200") : "—"], ["Feed stage (from the top)", (c) => c.rm && c.sg.feed ? String(c.sg.feed) : "—"],
+    ["Vapour flow V (kmol/h)", (c) => c.rm ? f(c.sg.V * FEED, 1) : "—"], ["Reboiler duty Q_{B} (kW)", (c) => c.rm ? f(c.QB, 0) : "—"],
+    ["Top / bottom temperature (°C)", (c) => c.rm && c.sg.ok ? `${f(c.sg.st[0].T - K, 1)} / ${f(c.sg.st[c.sg.st.length - 1].T - K, 1)}` : "—"]];
   const tb = $("colTable"); tb.textContent = "";
-  const hr = document.createElement("tr"); for (const h of ["項目", "NRTL", "理想溶液（原設計）"]) { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); } tb.appendChild(hr);
+  const hr = document.createElement("tr"); for (const h of ["Item", "NRTL", "Ideal solution (original design)"]) { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); } tb.appendChild(hr);
   for (const [lab, fn] of rows) { const tr = document.createElement("tr"); const td0 = document.createElement("td"); td0.className = "txt"; richHTML(lab, td0); tr.appendChild(td0); for (const c of [cN, cI]) { const td = document.createElement("td"); td.textContent = fn(c); tr.appendChild(td); } tb.appendChild(tr); }
 }
 function csvRows() {
@@ -866,8 +866,8 @@ function csvRows() {
 }
 function renderData() {
   const tb = $("dataTable"); tb.textContent = "";
-  const head = ["x₁", "T 理想 (°C)", "y₁ 理想", "T NRTL (°C)", "y₁ NRTL", `Gᴱ (J/mol)`, `ΔH_mix (J/mol)`, "γ₁", "γ₂"];
-  const cap = document.createElement("caption"); cap.style.cssText = "text-align:left;padding:6px 10px;color:var(--muted);font-size:.78rem"; cap.textContent = `P = ${M.P} kPa；過剩性質在 T_ref = ${S.Tref} °C`; tb.appendChild(cap);
+  const head = ["x₁", "T ideal (°C)", "y₁ ideal", "T NRTL (°C)", "y₁ NRTL", `Gᴱ (J/mol)`, `ΔH_mix (J/mol)`, "γ₁", "γ₂"];
+  const cap = document.createElement("caption"); cap.style.cssText = "text-align:left;padding:6px 10px;color:var(--muted);font-size:.78rem"; cap.textContent = `P = ${M.P} kPa; excess properties at T_ref = ${S.Tref} °C`; tb.appendChild(cap);
   const hr = document.createElement("tr"); for (const h of head) { const th = document.createElement("th"); th.textContent = h; hr.appendChild(th); } tb.appendChild(hr);
   for (let i = 0; i <= 20; i++) {
     const x = i / 20, [Ti, yi] = bubble(x, M.P, idLn, null, M.ps), [Tn, yn] = bubble(x, M.P, nrtlLn, M.prm, M.ps), e = excess(x, M.TR, M.prm);
@@ -876,16 +876,16 @@ function renderData() {
     tb.appendChild(tr);
   }
   const et = $("expTable"); et.textContent = "";
-  const c2 = document.createElement("caption"); c2.style.cssText = cap.style.cssText; c2.textContent = "Kamihama 等（2012）101.3 kPa 實驗數據與目前 NRTL 參數的偏差"; et.appendChild(c2);
-  const h2 = document.createElement("tr"); for (const h of ["x₁", "y₁", "T (°C)", "U(T) (K)", "U(y₁)", "ΔT (K)", "Δy₁", "在誤差內"]) { const th = document.createElement("th"); th.textContent = h; h2.appendChild(th); } et.appendChild(h2);
+  const c2 = document.createElement("caption"); c2.style.cssText = cap.style.cssText; c2.textContent = "Deviation of the current NRTL parameters from the Kamihama et al. (2012) data at 101.3 kPa"; et.appendChild(c2);
+  const h2 = document.createElement("tr"); for (const h of ["x₁", "y₁", "T (°C)", "U(T) (K)", "U(y₁)", "ΔT (K)", "Δy₁", "Within U"]) { const th = document.createElement("th"); th.textContent = h; h2.appendChild(th); } et.appendChild(h2);
   EXP.forEach((e, i) => { const r = M.fN.res[i] || { T: NaN, y: NaN }; const dT = r.T - e.T, dy = r.y - e.y, ok = Math.abs(dT) <= e.uT && Math.abs(dy) <= e.uy;
-    const tr = document.createElement("tr"); for (const v of [f(e.x, 3), f(e.y, 3), f(e.T - K, 2), f(e.uT, 2), f(e.uy, 3), (dT >= 0 ? "+" : "") + f(dT, 2), (dy >= 0 ? "+" : "") + f(dy, 4), ok ? "是" : "否"]) { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); } et.appendChild(tr); });
+    const tr = document.createElement("tr"); for (const v of [f(e.x, 3), f(e.y, 3), f(e.T - K, 2), f(e.uT, 2), f(e.uy, 3), (dT >= 0 ? "+" : "") + f(dT, 2), (dy >= 0 ? "+" : "") + f(dy, 4), ok ? "yes" : "no"]) { const td = document.createElement("td"); td.textContent = v; tr.appendChild(td); } et.appendChild(tr); });
 }
 $("copyCsv").addEventListener("click", () => {
   const txt = csvRows().map((r) => r.join(",")).join("\n");
   const msg = $("copyMsg"), box = $("copyBox");
-  const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); msg.textContent = "無法直接寫入剪貼簿，已選取下方文字，請按 Ctrl/⌘ + C 複製"; };
-  try { navigator.clipboard.writeText(txt).then(() => { msg.textContent = `已複製 ${txt.split("\n").length - 1} 列（P = ${M.P} kPa，T_ref = ${S.Tref} °C）`; box.hidden = true; }, fallback); } catch (e) { fallback(); }
+  const fallback = () => { box.hidden = false; box.value = txt; box.focus(); box.select(); msg.textContent = "Could not write to the clipboard; the text below is selected, press Ctrl/⌘ + C to copy"; };
+  try { navigator.clipboard.writeText(txt).then(() => { msg.textContent = `Copied ${txt.split("\n").length - 1} rows (P = ${M.P} kPa, T_ref = ${S.Tref} °C)`; box.hidden = true; }, fallback); } catch (e) { fallback(); }
 });
 
 // boot
