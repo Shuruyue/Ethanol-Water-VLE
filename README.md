@@ -1,5 +1,9 @@
 # Ethanol-Water VLE Final Project
 
+**[Interactive page](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)**: move the sliders to recompute T–x–y, the deviation from the Kamihama et al. (2012) data, ΔH_mix and the McCabe–Thiele column live in the browser (one self-contained file; also works offline). The ideal-solution model misses the boiling points of ethanol–water at 1 atm by up to 11 K and cannot produce the azeotrope; NRTL with literature parameters matches the 21 measured points to 0.07 K on average and puts the azeotrope at x₁ = 0.895 and 78.14 °C (measured: 0.895 and 78.11 °C).
+
+[![The interactive page: T–x–y diagram, close-up of the azeotrope and relative volatility](web/ethanol-water-vle.png)](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)
+
 This repository contains the computation code for the chemical thermodynamics final project.
 The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 
@@ -8,10 +12,6 @@ The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
 > It was split out with its full commit history; the code does not depend on that fork.
 > `tests/verify_scientific_correctness.py` can optionally cross-check the NRTL
 > implementation against the `thermo` package (`pip install thermo`).
-
-**Interactive page:** [web/ethanol-water-vle.html](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)
-— move the sliders to recompute T–x–y, the deviation from the Kamihama et al. (2012) data,
-ΔH_mix and the McCabe–Thiele column live in the browser (single self-contained file; also works offline).
 
 ## Current Capabilities
 
@@ -33,8 +33,6 @@ Ethanol-Water-VLE/
 ├── data/
 │   └── parameter_db.json
 ├── figures/
-├── references/
-│   └── thermo.pdf
 ├── src/
 │   ├── main.py
 │   ├── interactive_app.py
