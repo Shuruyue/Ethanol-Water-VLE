@@ -52,7 +52,7 @@
         "b21": -586.08,
         "source": {
           "name": "Aspen Plus NRTL databank (regressed from the Dortmund Data Bank)",
-          "citation": "Tabulated in D. Beneke, M. Peters, D. Glasser, D. Hildebrandt, Understanding Distillation Using Column Profile Maps, Wiley, 2013, Appendix B (a12=-0.8009, a21=3.4578, b12=246.18 K, b21=-586.0809 K, alpha=0.3). Not a DECHEMA Vol. I table: DECHEMA lists constant parameters per data set in a different form. Validated against Kamihama et al., J. Chem. Eng. Data 57 (2012) 339: AAD(T)=0.072 K, AAD(y1)=0.0027 at 101.3 kPa.",
+          "citation": "Tabulated in D. Beneke, M. Peters, D. Glasser, D. Hildebrandt, Understanding Distillation Using Column Profile Maps, Wiley, 2013, Appendix B (a12=-0.8009, a21=3.4578, b12=246.18 K, b21=-586.0809 K, alpha=0.3). Not a DECHEMA Vol. I table: DECHEMA lists constant parameters per data set in a different form. Validated against Kamihama et al., J. Chem. Eng. Data 57 (2012) 339 at 101.3 kPa: AAD(T)=0.088 K, AAD(y1)=0.0027 with the Antoine sets in this file; AAD(T)=0.072 K with the NIST/IAPWS vapour pressures of report2026/.",
           "url": ""
         }
       },
