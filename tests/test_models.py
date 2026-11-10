@@ -16,6 +16,7 @@ from models import (
     gamma_van_laar,
     psat_kpa,
     tau_value,
+    tsat_celsius,
 )
 from parameter_store import load_system_parameters
 
@@ -37,6 +38,13 @@ class TestAntoineEquation(unittest.TestCase):
         """Water Psat at 100.0 degC should be ~101.3 kPa."""
         psat = psat_kpa(100.0, self.water)
         self.assertAlmostEqual(psat, 101.325, delta=2.0)
+
+    def test_tsat_inverts_psat(self):
+        """tsat_celsius is the exact inverse of psat_kpa (normal boiling points at 1 atm)."""
+        for comp, bp in ((self.water, 100.0), (self.ethanol, 78.3)):
+            T = tsat_celsius(101.325, comp)
+            self.assertAlmostEqual(psat_kpa(T, comp), 101.325, places=9)
+            self.assertAlmostEqual(T, bp, delta=0.1)
 
     def test_psat_monotonically_increasing(self):
         """Psat must increase with temperature for both components."""

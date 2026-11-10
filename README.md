@@ -1,205 +1,135 @@
-# Ethanol-Water VLE Final Project
+# Ethanol-Water-VLE
+
+[![CI](https://github.com/Shuruyue/Ethanol-Water-VLE/actions/workflows/ci.yml/badge.svg)](https://github.com/Shuruyue/Ethanol-Water-VLE/actions/workflows/ci.yml)
+![Python 3.10+](https://img.shields.io/badge/python-3.10%2B-blue)
+![License: MIT](https://img.shields.io/badge/license-MIT-green)
 
 **[Interactive page](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)**: move the sliders to recompute T–x–y, the deviation from the Kamihama et al. (2012) data, ΔH_mix and the McCabe–Thiele column live in the browser (one self-contained file; also works offline). The ideal-solution model misses the boiling points of ethanol–water at 1 atm by up to 11 K and cannot produce the azeotrope; NRTL with literature parameters matches the 21 measured points to 0.07 K on average and puts the azeotrope at x₁ = 0.895 and 78.14 °C (measured: 0.895 and 78.11 °C).
 
 [![The interactive page: T–x–y diagram, close-up of the azeotrope and relative volatility](web/ethanol-water-vle.png)](https://shuruyue.github.io/Ethanol-Water-VLE/web/ethanol-water-vle.html)
 
-This repository contains the computation code for the chemical thermodynamics final project.
-The scope is ethanol(1)-water(2) with non-ideal liquid behavior.
+## Ethanol–Water VLE with NRTL
+
+Final project of a chemical thermodynamics course (Sandler, *Chemical, Biochemical, and Engineering Thermodynamics*): vapour–liquid equilibrium of ethanol(1)–water(2) at 1 atm with an activity-coefficient model, the excess properties, and what the non-ideality means for the energy demand and design of a distillation column. The models are validated against the isobaric data of Kamihama et al. (2012).
 
 > This project originally lived in the `vle_consulting/` folder of a fork of
 > [CalebBell/thermo](https://github.com/CalebBell/thermo) (the fork has since been removed).
 > It was split out with its full commit history; the code does not depend on that fork.
-> `tests/verify_scientific_correctness.py` can optionally cross-check the NRTL
-> implementation against the `thermo` package (`pip install thermo`).
 
-## Current Capabilities
+### Two code bases
 
-- VLE prediction at fixed pressure: `T-x-y`, `y-x`
-- Excess properties from NRTL: `GE`, `HE`, `CPE`
-- Model comparison: ideal, Van Laar, NRTL
-- Interactive dashboard (Wolfram-style exploration)
-- Practical image-pack export for engineering decisions
-- Final build pipeline: plots + CSV tables + summary JSON
-- Shared profile engine for CLI/export/UI consistency (`src/profiles.py`)
-- Interpolated azeotrope detection (sub-grid estimate)
-- Isothermal export includes `alpha12` (relative volatility) directly
-- Dashboard supports one-click CSV download of current state
+| Folder | What it is | Vapour pressure |
+|---|---|---|
+| [`report2026/`](report2026/) | **The current analysis.** The revised report (PDF) and the calculations behind every number in it: parameter regression, validation, Herington consistency test, excess properties, azeotrope vs pressure, pressure-swing and column design, ethylene glycol ternary data. The results on this page come from here. | ethanol: NIST Antoine set (Ambrose & Sprake 1970); water: IAPWS-95 |
+| [`src/`](src/) | The original course-project code: command-line analysis, Streamlit dashboard, figure and CSV export to `final_outputs/`. | tabulated mmHg / °C Antoine sets ([`data/parameter_db.json`](data/parameter_db.json)) |
 
-## Directory
+Both use the same literature NRTL parameters. The vapour-pressure correlations shift the results slightly: the mean temperature error against the data is 0.072 K in `report2026/` and 0.088 K in `src/`, and the azeotrope is at x₁ = 0.895, 78.14 °C and x₁ = 0.897, 78.17 °C. The interactive page can switch between the two.
+
+## Key Results
+
+At 101.3 kPa, against the 21 points of Kamihama et al. (2012) (`report2026/`):
+
+| Model | Mean \|ΔT\| | Max \|ΔT\| | Mean \|Δy₁\| | Azeotrope |
+|---|---|---|---|---|
+| Ideal solution (Raoult's law) | 5.5 K | 11.2 K | 0.092 | none |
+| NRTL, literature parameters (Aspen / DDB) | 0.072 K | 0.28 K | 0.0027 | x₁ = 0.895, 78.14 °C |
+| NRTL, fitted to the data here | 0.116 K | 0.61 K | 0.0039 | x₁ = 0.891, 78.13 °C |
+| Van Laar, fitted to the data here | 0.080 K | 0.35 K | 0.0031 | x₁ = 0.892, 78.13 °C |
+| Measured | | | | x₁ = 0.895, 78.11 °C |
+
+- The data pass the Herington consistency test (D = 3.7 < J = 9.3).
+- Vapour-phase non-ideality (Tsonopoulos second virial coefficients) moves the bubble temperature by at most 0.06 K at 1 atm, so the ideal-gas vapour is adequate there.
+- Column design, 100 kmol/h from x_F = 0.10 to x_D = 0.85 at R = 1.3 R_min: the ideal-solution model gives R_min = 6.6 and a reboiler duty of 1250 kW, NRTL gives R_min = 1.9 and 451 kW. The ideal model overestimates the energy demand 2.8-fold, and a column designed with it reaches only x_D = 0.83 in the real system.
+- |ΔH_mix| stays below 0.6 % of the heat of vaporization, so mixing heat does not matter for the column energy balance.
+
+## Quick Start
+
+```bash
+git clone https://github.com/Shuruyue/Ethanol-Water-VLE.git
+cd Ethanol-Water-VLE
+pip install -r requirements.txt pytest pandas chemicals CoolProp
+```
+
+### Report calculations (`report2026/`)
+
+```bash
+cd report2026/calc
+python run_analysis.py && python make_figures.py   # results/ and fig/
+python make_numbers.py && python make_tables.py    # LaTeX number macros and tables
+```
+
+Every number in the PDF is read from `results/results.json`. Building the PDF needs XeLaTeX with Chinese support; see [`report2026/README.md`](report2026/README.md).
+
+### Course code (`src/`)
+
+```bash
+python src/main.py                         # summary and T-x-y, y-x, GE, HE, McCabe-Thiele plots → figures/
+python src/final_build.py --output-root final_outputs --points 80 --t-ref 78.2
+streamlit run src/interactive_app.py       # dashboard: pressure, temperature, NRTL parameters
+```
+
+`final_build.py` writes the committed [`final_outputs/`](final_outputs/): baseline and practical-pack plots, model curves, isothermal G^E/H^E/C_p^E/γ/α₁₂ tables at 78.2 °C, the azeotrope-vs-pressure sweep and `run_summary.json`.
+
+## Validation
+
+```bash
+pytest -q tests                                  # 47 tests of src/, including validation against the measured data
+python tests/verify_scientific_correctness.py    # 22 scientific checks (optional cross-check with `pip install thermo`)
+cd report2026/calc && pytest -q test_core.py     # 13 tests: Gibbs–Helmholtz, pure-component limits, azeotrope vs experiment
+```
+
+CI runs all three on Ubuntu and Windows with Python 3.10 and 3.12.
+
+## Limitations
+
+- Binary system only, with constant-molar-overflow McCabe–Thiele columns (saturated-liquid feed, total condenser; no tray efficiency or hydraulics).
+- The literature NRTL parameters come without uncertainties; standard errors are given only for the parameters fitted here.
+- The `src/` Antoine set for ethanol is tabulated up to 80 °C and is extrapolated at the water-rich end of the 1 atm diagram (deviation from the Schroeder et al. 2014 reference equation of state below 0.8 % up to 100 °C).
+- `src/` treats the vapour as an ideal gas. `report2026/` checks the second-virial correction, which is small at 1 atm but grows with pressure (the pressure-swing case goes up to 300 kPa).
+
+## Project Structure
 
 ```text
 Ethanol-Water-VLE/
+├── report2026/                 # current analysis and report
+│   ├── calc/                   # vle_core.py, run_analysis.py, figure/number/table scripts, test_core.py
+│   ├── data/                   # Kamihama et al. (2012): binary and ternary data with ethylene glycol
+│   ├── results/                # results.json and CSV tables (generated)
+│   ├── fig/  tex/              # figures and LaTeX source
+│   └── VLE_Consulting_Report_2026.pdf
+├── src/                        # original course code
+│   ├── models.py  solver.py    # Antoine, ideal / Van Laar / NRTL, bubble-point solver
+│   ├── pipeline.py  analysis.py  profiles.py  experimental_data.py  parameter_store.py
+│   ├── main.py  final_build.py  output_pack.py  export_data.py  plotting.py
+│   └── interactive_app.py      # Streamlit dashboard
 ├── data/
-│   └── parameter_db.json
-├── figures/
-├── src/
-│   ├── main.py
-│   ├── interactive_app.py
-│   ├── output_pack.py
-│   ├── export_data.py
-│   ├── final_build.py
-│   ├── pipeline.py
-│   ├── parameter_store.py
-│   ├── models.py
-│   ├── solver.py
-│   ├── analysis.py
-│   ├── profiles.py
-│   └── plotting.py
-└── tests/
-    ├── conftest.py
-    ├── test_models.py
-    ├── test_solver.py
-    ├── test_analysis.py
-    ├── test_plotting.py
-    ├── test_pipeline.py
-    ├── test_parameter_store.py
-    ├── test_output_pack.py
-    ├── test_export_data.py
-    └── verify_scientific_correctness.py
+│   ├── parameter_db.json       # parameters with sources (used by src/)
+│   └── experimental/           # Kamihama et al. (2012) ethanol–water at 101.3 kPa
+├── final_outputs/              # plots and tables written by src/final_build.py
+├── tests/                      # pytest suite for src/ and verify_scientific_correctness.py
+├── web/                        # interactive page (GitHub Pages)
+└── .github/workflows/ci.yml
 ```
 
-## Install
+## Data and Parameter Sources
 
-```bash
-pip install -r requirements.txt
-```
+- **NRTL**: Aspen Plus databank values regressed from the Dortmund Data Bank (a₁₂ = −0.8009, b₁₂ = 246.18 K, a₂₁ = 3.4578, b₂₁ = −586.08 K, α = 0.3), as tabulated in Beneke et al. (2013), Appendix B. τᵢⱼ = aᵢⱼ + bᵢⱼ/T.
+- **Vapour pressure**: `report2026/` uses the NIST WebBook Antoine set for ethanol (Ambrose & Sprake 1970, 292.77–366.63 K) and IAPWS-95 for water. `src/` uses common tabulated mmHg / °C Antoine sets (ethanol −57 to 80 °C, water −20 to 100 °C); these are not NIST sets.
+- **Van Laar**: A₁₂ = 1.65, A₂₁ = 0.95 in `src/` are the illustrative values of the course handout code, not literature values; `report2026/` fits A₁₂ = 1.700 ± 0.013, A₂₁ = 0.953 ± 0.002.
+- **Experimental data**: Kamihama et al. (2012), transcribed from the NIST TRC ThermoML archive with the TRC expanded uncertainties.
+- `data/parameter_db.json` stores every parameter block with its source; the loader rejects blocks without one.
 
-## Run Baseline CLI
+## References
 
-```bash
-python src/main.py
-python src/main.py --points 80
-python src/main.py --output-dir figures
-python src/main.py --no-plots
-```
+1. H. Renon, J. M. Prausnitz, Local compositions in thermodynamic excess functions for liquid mixtures, *AIChE J.* **14** (1968) 135–144.
+2. N. Kamihama, H. Matsuda, K. Kurihara, K. Tochigi, S. Oba, Isobaric vapor–liquid equilibria for ethanol + water + ethylene glycol and its constituent three binary systems, *J. Chem. Eng. Data* **57** (2012) 339–344. [doi:10.1021/je2008704](https://doi.org/10.1021/je2008704)
+3. D. Beneke, M. Peters, D. Glasser, D. Hildebrandt, *Understanding Distillation Using Column Profile Maps*, Wiley, 2013, Appendix B.
+4. D. Ambrose, C. H. S. Sprake, Thermodynamic properties of organic oxygen compounds XXV, *J. Chem. Thermodyn.* **2** (1970) 631–645.
+5. W. Wagner, A. Pruß, The IAPWS formulation 1995 for the thermodynamic properties of ordinary water substance, *J. Phys. Chem. Ref. Data* **31** (2002) 387–535.
+6. C. Tsonopoulos, An empirical correlation of second virial coefficients, *AIChE J.* **20** (1974) 263–272.
+7. E. F. G. Herington, Tests for the consistency of experimental isobaric vapour–liquid equilibrium data, *J. Inst. Petrol.* **37** (1951) 457–470.
+8. S. I. Sandler, *Chemical, Biochemical, and Engineering Thermodynamics*, 5th ed., Wiley, 2017.
 
-## Run Interactive Dashboard
+## License
 
-```bash
-streamlit run src/interactive_app.py
-```
-
-Interactive controls:
-
-- Pressure (kPa)
-- Reference temperature (deg C)
-- Grid size
-- Full NRTL parameter set: `alpha12`, `alpha21`, `a12`, `b12`, `a21`, `b21`
-
-## Generate Practical Output Pack
-
-```bash
-python src/output_pack.py --output-dir figures/practical_pack --t-ref 78.2 --points 80
-```
-
-Default output set (recommended for real-world discussion):
-
-1. `txy_ethanol_water_1atm.png`: boiling/dew temperature design map
-2. `yx_ethanol_water_1atm.png`: separation trajectory map
-3. `ge_ethanol_water_1atm.png`: non-ideality intensity
-4. `he_ethanol_water_1atm.png`: thermal effect of mixing
-5. `isothermal_excess_bundle_tXXc.png`: `GE`, `HE`, `CPE` at chosen temperature
-6. `cpe_ethanol_water_tXXc.png`: excess heat-capacity signal
-7. `gamma_ethanol_water_tXXc.png`: activity coefficients vs composition
-8. `relative_volatility_ethanol_water_tXXc.png`: separation driving force map
-9. `azeotrope_pressure_sensitivity.png`: how azeotrope location shifts with pressure
-
-## Build Final Deliverable Bundle
-
-```bash
-python src/final_build.py --output-root final_outputs --points 80 --t-ref 78.2
-```
-
-This generates:
-
-- `final_outputs/plots/`:
-  baseline and practical-pack figures
-- `final_outputs/data/baseline/`:
-  model curves and bubble-line excess properties CSV
-- `final_outputs/data/isothermal/`:
-  fixed-temperature `GE/HE/CPE/gamma/alpha12` CSV
-- `final_outputs/data/sensitivity/`:
-  azeotrope-pressure sensitivity CSV
-- `final_outputs/data/run_summary.json`:
-  key metrics + relative-volatility range + azeotrope-vs-literature offsets
-
-## Optimization Notes (Current Version)
-
-### 1) Architecture
-
-- Unified repeated post-processing into `src/profiles.py`.
-- `output_pack.py`, `export_data.py`, and `interactive_app.py` now use the same profile builders.
-- Reduced divergence risk between CLI plots, exported CSV, and dashboard values.
-
-### 2) Core Algorithms
-
-- Added vectorized NRTL evaluator (`gamma_nrtl_binary`) and reused it in excess-property curve generation.
-- Added Antoine derivative function `dPsat/dT` for solver diagnostics and derivative-ready extensions.
-- Bubble-point solver now supports continuation-style bracketing (`T_guess`) to improve robustness.
-- Azeotrope finder now interpolates across `y-x` sign changes for sub-grid accuracy.
-
-### 3) UI and Output
-
-- Dashboard now overlays Van Laar against Ideal/NRTL in both `T-x-y` and `y-x`.
-- Added literature azeotrope marker for quick visual sanity check.
-- Added dashboard CSV download for reporting/review handoff.
-- Extended summary JSON with relative-volatility envelope and azeotrope deviation metrics.
-
-### 4) Verification Loop
-
-- Unit/regression tests: `pytest -q tests` (45 passed, incl. validation against experimental data)
-- Scientific verification script:
-  - Windows recommendation: `set PYTHONUTF8=1` then `python tests/verify_scientific_correctness.py`
-
-## Data Rules
-
-- Parameters are loaded only from `data/parameter_db.json`.
-- Every parameter block must include source metadata.
-- NRTL uses explicit constant and temperature terms:
-  - `tau_ij(T) = a_ij + b_ij / T`
-- Loader rejects datasets where both `a12` and `a21` are zero.
-
-## Real-World Gaps To Add Next
-
-To improve real-plant fidelity, add these datasets next:
-
-- pressure-dependent vapor-phase non-ideality (`phi` correction)
-- liquid density and heat-capacity data for full energy balance
-- validated pressure-swing azeotrope points from literature
-- uncertainty bounds for NRTL parameters (confidence intervals)
-- pilot or plant composition-temperature samples for model calibration
-
-## References Used In Database
-
-- Antoine coefficients: common tabulated sets in mmHg / deg C (ethanol valid -57 to 80 deg C,
-  water -20 to 100 deg C). These are **not** NIST WebBook sets (NIST uses bar / K);
-  the 1 atm water-rich end (up to 100 deg C) is an extrapolation for ethanol.
-- NRTL parameters: Aspen Plus databank values regressed from the Dortmund Data Bank,
-  as tabulated in Beneke, Peters, Glasser & Hildebrandt, *Understanding Distillation
-  Using Column Profile Maps*, Wiley (2013), Appendix B. (Earlier versions of this README
-  attributed them to DECHEMA Vol. I, which is not correct.)
-- Van Laar parameters: the illustrative values from the course handout code (not literature); kept only for model comparison.
-- Experimental validation data: Kamihama et al., *J. Chem. Eng. Data* 57 (2012) 339-344,
-  doi:10.1021/je2008704 (`data/experimental/`, via NIST TRC ThermoML).
-- Course textbook: Sandler, *Chemical, Biochemical, and Engineering Thermodynamics*, 5th ed., Wiley (2017).
-
-## 2026 Report Revision (`report2026/`)
-
-`report2026/` is a self-contained, fully reproducible rewrite of the final report
-(XeLaTeX + Python). Every number in the PDF is generated from `results/results.json`.
-
-```bash
-cd report2026
-pip install numpy scipy pandas matplotlib chemicals CoolProp
-python calc/run_analysis.py && python calc/make_figures.py
-python calc/make_numbers.py && python calc/make_tables.py
-cd tex && xelatex report.tex && xelatex report.tex
-```
-
-## Algorithm References
-
-- Renon, H.; Prausnitz, J. M. (1968). *Local compositions in thermodynamic excess functions for liquid mixtures*. AIChE Journal, 14(1), 135-144. (NRTL origin)
-- Michelsen, M. L. (1982). *The Isothermal Flash Problem. Part I. Stability*. Fluid Phase Equilibria, 9, 1-19.
-- Michelsen, M. L. (1982). *The Isothermal Flash Problem. Part II. Phase-Split Calculation*. Fluid Phase Equilibria, 9, 21-40.
-- SciPy documentation for Brent root solver (`scipy.optimize.brentq`) used for robust 1D root finding.
+MIT License.

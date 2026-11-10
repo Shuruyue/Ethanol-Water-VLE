@@ -68,6 +68,16 @@ def psat_kpa(T_celsius: float, params: AntoineParams) -> float:
     return psat
 
 
+def tsat_celsius(pressure_kpa: float, params: AntoineParams) -> float:
+    r"""Saturation temperature in degC at a given pressure (inverse of :func:`psat_kpa`).
+
+    .. math::
+        T = \frac{B}{A - \log_{10} P^{\mathrm{sat}}} - C
+    """
+    p = pressure_kpa / 0.133322 if params.unit.lower() == "mmhg" else pressure_kpa
+    return params.B / (params.A - np.log10(p)) - params.C
+
+
 def dpsat_dT_kpa_per_celsius(T_celsius: float, params: AntoineParams) -> float:
     r"""Temperature derivative of Antoine saturation pressure, kPa/degC.
 

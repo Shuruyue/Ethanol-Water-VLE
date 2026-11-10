@@ -6,6 +6,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
+from models import tsat_celsius
 from pipeline import run_analysis
 
 
@@ -33,8 +34,11 @@ def print_summary(result) -> None:
     print(f"max HE (J/mol): {result.HE_j_mol.max():.3f}")
     print(f"min HE (J/mol): {result.HE_j_mol.min():.3f}")
 
-    ethanol_bp = float(result.nrtl.T_celsius[-1])
-    water_bp = float(result.nrtl.T_celsius[0])
+    # Pure-component boiling points from the Antoine sets (the composition grid
+    # stops at x1 = 0.01 and 0.99, where the bubble point is already shifted)
+    pressure = result.system.pressure_kpa
+    water_bp = tsat_celsius(pressure, result.system.component_2.antoine)
+    ethanol_bp = tsat_celsius(pressure, result.system.component_1.antoine)
     print(f"boiling point water   : {water_bp:.3f} deg C")
     print(f"boiling point ethanol : {ethanol_bp:.3f} deg C")
 

@@ -24,3 +24,6 @@ report2026/tex/report.pdf
 _*/
 .DS_Store
 Thumbs.db
+
+# Default output folder of src/main.py (final_outputs/ holds the committed figures)
+figures/
